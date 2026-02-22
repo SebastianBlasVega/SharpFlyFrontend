@@ -1,0 +1,198 @@
+<div class="aircraft-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <span class="material-symbols-outlined page-header__icon">airplanemode_active</span>
+      <div>
+        <h1 class="page-header__title">FLEET REGISTRY</h1>
+        <p class="page-header__sub">Aircraft Management</p>
+      </div>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">add</span>
+      ADD AIRCRAFT
+    </button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-item__value">{{ allAircraft.length }}</span>
+      <span class="stat-item__label">TOTAL</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--green">{{ activeCount }}</span>
+      <span class="stat-item__label">ACTIVE</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--red">{{ inactiveCount }}</span>
+      <span class="stat-item__label">INACTIVE</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--amber">{{ totalCapacity }}</span>
+      <span class="stat-item__label">TOTAL SEATS (ACTIVE)</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-symbols-outlined search-box__icon">search</span>
+      <input
+        class="search-box__input"
+        type="text"
+        placeholder="SEARCH BY CODE OR MODEL..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === undefined" (click)="setActiveFilter(undefined)">ALL</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === true" (click)="setActiveFilter(true)">ACTIVE</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === false" (click)="setActiveFilter(false)">INACTIVE</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>LOADING FLEET DATA...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-state" *ngIf="error && !loading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadAircraft()">RETRY</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper" *ngIf="!loading && !error">
+    <table class="aircraft-table">
+      <thead>
+        <tr>
+          <th>CODE</th>
+          <th>MODEL</th>
+          <th>SEAT CAPACITY</th>
+          <th>STATUS</th>
+          <th>REGISTERED</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="aircraft-row"
+            *ngFor="let aircraft of filteredAircraft; let i = index"
+            [style.animation-delay]="i * 40 + 'ms'">
+          <td>
+            <span class="code-badge">{{ aircraft.code }}</span>
+          </td>
+          <td>
+            <div class="model-cell">
+              <span class="material-symbols-outlined model-cell__icon">airplane_ticket</span>
+              <span class="model-cell__name">{{ aircraft.model }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="capacity-bar">
+              <span class="capacity-bar__value">{{ aircraft.seatCapacity }}</span>
+              <div class="capacity-bar__track">
+                <div class="capacity-bar__fill"
+                  [style.width]="((aircraft.seatCapacity ?? 0) / 600 * 100) + '%'">
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="status-chip" [class.status-chip--active]="aircraft.isActive" [class.status-chip--inactive]="!aircraft.isActive">
+              {{ aircraft.isActive ? 'ACTIVE' : 'INACTIVE' }}
+            </span>
+          </td>
+          <td class="date-cell">{{ aircraft.createdAt | date:'dd MMM yyyy' | uppercase }}</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn action-btn--edit" (click)="openEdit(aircraft)" title="Edit">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="action-btn action-btn--delete" (click)="confirmDelete(aircraft.aircraftId!)" title="Delete">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredAircraft.length === 0">
+          <td colspan="6">
+            <div class="empty-state">
+              <span class="material-symbols-outlined">airplanemode_inactive</span>
+              <p>NO AIRCRAFT FOUND</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Delete Confirm -->
+  <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <span class="material-symbols-outlined confirm-dialog__icon">warning</span>
+      <p class="confirm-dialog__title">DELETE AIRCRAFT?</p>
+      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <div class="confirm-dialog__actions">
+        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
+        <button class="btn-danger" (click)="deleteAircraft(deleteConfirmId!)">DELETE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create / Edit Modal -->
+  <div class="overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <span class="material-symbols-outlined">{{ editMode ? 'edit' : 'add_circle' }}</span>
+        <h2 class="modal__title">{{ editMode ? 'EDIT AIRCRAFT' : 'NEW AIRCRAFT' }}</h2>
+        <button class="modal__close" (click)="closeModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <div class="form-group">
+          <label class="form-label">AIRCRAFT CODE <span class="required">*</span></label>
+          <input class="form-input" type="text" placeholder="e.g. A320-1" [(ngModel)]="form.code" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">MODEL <span class="required">*</span></label>
+          <input class="form-input" type="text" placeholder="e.g. Airbus A320" [(ngModel)]="form.model" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">SEAT CAPACITY <span class="required">*</span></label>
+          <input class="form-input" type="number" placeholder="e.g. 180" [(ngModel)]="form.seatCapacity" min="1" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">STATUS</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" [class.toggle-btn--on]="form.isActive === true" (click)="form.isActive = true">ACTIVE</button>
+            <button class="toggle-btn" [class.toggle-btn--off]="form.isActive === false" (click)="form.isActive = false">INACTIVE</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn-ghost" (click)="closeModal()">CANCEL</button>
+        <button class="btn-primary" (click)="save()" [disabled]="saving">
+          <span class="material-symbols-outlined">{{ saving ? 'hourglass_empty' : 'check' }}</span>
+          {{ saving ? 'SAVING...' : 'SAVE' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

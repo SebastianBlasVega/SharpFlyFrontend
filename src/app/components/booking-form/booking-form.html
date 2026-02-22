@@ -1,0 +1,256 @@
+<div class="booking-form-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn-back" routerLink="/bookings">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <div>
+      <h1 class="page-header__title">NEW BOOKING</h1>
+      <p class="page-header__sub">Create Reservation</p>
+    </div>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="steps">
+    <div class="step" [class.step--active]="step === 1" [class.step--done]="step > 1">
+      <div class="step__circle">
+        <span class="material-symbols-outlined" *ngIf="step > 1">check</span>
+        <span *ngIf="step <= 1">01</span>
+      </div>
+      <span class="step__label">SELECT FLIGHT</span>
+    </div>
+    <div class="step__connector" [class.step__connector--done]="step > 1"></div>
+    <div class="step" [class.step--active]="step === 2" [class.step--done]="step > 2">
+      <div class="step__circle">
+        <span class="material-symbols-outlined" *ngIf="step > 2">check</span>
+        <span *ngIf="step <= 2">02</span>
+      </div>
+      <span class="step__label">PASSENGERS</span>
+    </div>
+    <div class="step__connector" [class.step__connector--done]="step > 2"></div>
+    <div class="step" [class.step--active]="step === 3">
+      <div class="step__circle">03</div>
+      <span class="step__label">CONFIRM</span>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 1: SELECT FLIGHT ===================== -->
+  <div class="step-panel" *ngIf="step === 1">
+    <div class="step-panel__header">
+      <span class="material-symbols-outlined">departure_board</span>
+      <h2>SELECT A FLIGHT</h2>
+    </div>
+
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" placeholder="SEARCH BY FLIGHT NUMBER OR IATA..."
+        [(ngModel)]="flightSearch" />
+    </div>
+
+    <div class="flights-loading" *ngIf="loadingFlights">
+      <div class="spinner"></div>
+      <p>LOADING AVAILABLE FLIGHTS...</p>
+    </div>
+
+    <div class="flight-options" *ngIf="!loadingFlights">
+      <div class="flight-option"
+        *ngFor="let f of filteredFlights"
+        [class.flight-option--selected]="selectedFlight?.flightInstanceId === f.flightInstanceId"
+        (click)="selectFlight(f)">
+
+        <div class="flight-option__selector">
+          <div class="radio-dot" [class.radio-dot--on]="selectedFlight?.flightInstanceId === f.flightInstanceId"></div>
+        </div>
+
+        <div class="flight-option__number">{{ getFlightNumber(f) }}</div>
+
+        <div class="flight-option__route">
+          <span class="iata">{{ getOrigin(f) }}</span>
+          <span class="material-symbols-outlined route-arrow">arrow_forward</span>
+          <span class="iata">{{ getDestination(f) }}</span>
+        </div>
+
+        <div class="flight-option__times">
+          <span class="time">{{ f.departureAt | date:'HH:mm' }}</span>
+          <span class="date-label">{{ f.departureAt | date:'dd MMM' | uppercase }}</span>
+        </div>
+
+        <div class="flight-option__seats">
+          <span class="material-symbols-outlined">event_seat</span>
+          {{ f.capacity }}
+        </div>
+
+        <div class="flight-option__aircraft">{{ getAircraft(f) }}</div>
+      </div>
+
+      <div class="empty-state" *ngIf="filteredFlights.length === 0">
+        <span class="material-symbols-outlined">flight_land</span>
+        <p>NO SCHEDULED FLIGHTS AVAILABLE</p>
+      </div>
+    </div>
+
+    <div class="step-footer">
+      <button class="btn-primary" [disabled]="!selectedFlight" (click)="goToPassengers()">
+        CONTINUE TO PASSENGERS
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 2: PASSENGERS ===================== -->
+  <div class="step-panel" *ngIf="step === 2">
+
+    <!-- Selected Flight Summary -->
+    <div class="flight-summary" *ngIf="selectedFlight">
+      <div class="flight-summary__route">
+        <span class="flight-summary__iata">{{ getOrigin(selectedFlight) }}</span>
+        <span class="material-symbols-outlined flight-summary__plane">flight</span>
+        <span class="flight-summary__iata">{{ getDestination(selectedFlight) }}</span>
+      </div>
+      <div class="flight-summary__meta">
+        <span>{{ getFlightNumber(selectedFlight) }}</span>
+        <span>·</span>
+        <span>{{ selectedFlight.departureAt | date:'dd MMM yyyy HH:mm' | uppercase }}</span>
+        <span>·</span>
+        <span>{{ getAircraft(selectedFlight) }}</span>
+      </div>
+    </div>
+
+    <div class="step-panel__header">
+      <span class="material-symbols-outlined">group</span>
+      <h2>PASSENGER DETAILS</h2>
+      <button class="btn-add-pax" (click)="addPassenger()">
+        <span class="material-symbols-outlined">person_add</span>
+        ADD PASSENGER
+      </button>
+    </div>
+
+    <div class="passengers-list">
+      <div class="passenger-form" *ngFor="let p of passengers; let i = index">
+        <div class="passenger-form__header">
+          <span class="material-symbols-outlined">person</span>
+          <span class="passenger-form__label">PASSENGER {{ i + 1 }}</span>
+          <button class="btn-remove-pax" *ngIf="passengers.length > 1" (click)="removePassenger(i)">
+            <span class="material-symbols-outlined">remove_circle</span>
+          </button>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">FIRST NAME <span class="required">*</span></label>
+            <input class="form-input" type="text" placeholder="Juan" [(ngModel)]="p.firstName" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">LAST NAME <span class="required">*</span></label>
+            <input class="form-input" type="text" placeholder="Pérez" [(ngModel)]="p.lastName" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">DOC TYPE <span class="required">*</span></label>
+            <div class="select-wrapper">
+              <select class="form-input form-select" [(ngModel)]="p.docType">
+                <option *ngFor="let dt of docTypes" [value]="dt">{{ dt }}</option>
+              </select>
+              <span class="material-symbols-outlined select-arrow">expand_more</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">DOC NUMBER <span class="required">*</span></label>
+            <input class="form-input form-input--mono" type="text" placeholder="12345678" [(ngModel)]="p.docNumber" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hold Minutes -->
+    <div class="hold-config">
+      <span class="material-symbols-outlined">timer</span>
+      <label class="form-label">HOLD DURATION</label>
+      <div class="hold-options">
+        <button class="hold-btn" *ngFor="let m of [15, 30, 60, 120]"
+          [class.hold-btn--active]="holdMinutes === m"
+          (click)="holdMinutes = m">
+          {{ m }}m
+        </button>
+      </div>
+    </div>
+
+    <div class="step-footer">
+      <button class="btn-ghost" (click)="step = 1">
+        <span class="material-symbols-outlined">arrow_back</span>
+        BACK
+      </button>
+      <button class="btn-primary" [disabled]="!passengersValid" (click)="goToConfirm()">
+        REVIEW BOOKING
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 3: CONFIRM ===================== -->
+  <div class="step-panel" *ngIf="step === 3 && selectedFlight">
+    <div class="step-panel__header">
+      <span class="material-symbols-outlined">checklist</span>
+      <h2>CONFIRM BOOKING</h2>
+    </div>
+
+    <!-- Flight Recap -->
+    <div class="confirm-section">
+      <p class="confirm-section__label">FLIGHT</p>
+      <div class="confirm-flight">
+        <div class="confirm-flight__route">
+          <div class="confirm-point">
+            <span class="confirm-iata">{{ getOrigin(selectedFlight) }}</span>
+            <span class="confirm-city">{{ getOriginCity(selectedFlight) }}</span>
+            <span class="confirm-time">{{ selectedFlight.departureAt | date:'HH:mm' }}</span>
+          </div>
+          <div class="confirm-line">
+            <span class="material-symbols-outlined">flight</span>
+          </div>
+          <div class="confirm-point confirm-point--right">
+            <span class="confirm-iata">{{ getDestination(selectedFlight) }}</span>
+            <span class="confirm-city">{{ getDestCity(selectedFlight) }}</span>
+            <span class="confirm-time">{{ selectedFlight.arrivalAt | date:'HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="confirm-flight__meta">
+          <span>{{ getFlightNumber(selectedFlight) }}</span>
+          <span>·</span>
+          <span>{{ selectedFlight.departureAt | date:'EEE dd MMM yyyy' | uppercase }}</span>
+          <span>·</span>
+          <span>{{ getAircraft(selectedFlight) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passengers Recap -->
+    <div class="confirm-section">
+      <p class="confirm-section__label">PASSENGERS ({{ passengers.length }})</p>
+      <div class="confirm-pax-list">
+        <div class="confirm-pax" *ngFor="let p of passengers; let i = index">
+          <span class="confirm-pax__num">{{ i + 1 }}</span>
+          <span class="confirm-pax__name">{{ p.firstName }} {{ p.lastName }}</span>
+          <span class="confirm-pax__doc">{{ p.docType }} · {{ p.docNumber }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hold recap -->
+    <div class="confirm-section">
+      <p class="confirm-section__label">HOLD EXPIRES IN</p>
+      <p class="confirm-hold">{{ holdMinutes }} MINUTES</p>
+    </div>
+
+    <div class="step-footer">
+      <button class="btn-ghost" (click)="step = 2">
+        <span class="material-symbols-outlined">arrow_back</span>
+        BACK
+      </button>
+      <button class="btn-confirm" [disabled]="saving" (click)="submit()">
+        <span class="material-symbols-outlined">{{ saving ? 'hourglass_empty' : 'check_circle' }}</span>
+        {{ saving ? 'CREATING BOOKING...' : 'CREATE BOOKING' }}
+      </button>
+    </div>
+  </div>
+
+</div>

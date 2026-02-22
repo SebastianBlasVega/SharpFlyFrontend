@@ -1,0 +1,185 @@
+<div class="flight-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <span class="material-symbols-outlined page-header__icon">departure_board</span>
+      <div>
+        <h1 class="page-header__title">FLIGHT OPERATIONS</h1>
+        <p class="page-header__sub">Flight Instance Registry</p>
+      </div>
+    </div>
+    <button class="btn-primary" routerLink="/flights/new">
+      <span class="material-symbols-outlined">add</span>
+      NEW FLIGHT
+    </button>
+  </div>
+
+  <!-- Status Filter Tabs -->
+  <div class="status-tabs">
+    <button class="status-tab" [class.active]="filterStatus === 'ALL'" (click)="setStatusFilter('ALL')">
+      ALL <span class="tab-count">{{ countByStatus.ALL }}</span>
+    </button>
+    <button class="status-tab chip--blue" [class.active]="filterStatus === 'SCHEDULED'" (click)="setStatusFilter('SCHEDULED')">
+      SCHEDULED <span class="tab-count">{{ countByStatus.SCHEDULED }}</span>
+    </button>
+    <button class="status-tab chip--amber" [class.active]="filterStatus === 'DELAYED'" (click)="setStatusFilter('DELAYED')">
+      DELAYED <span class="tab-count">{{ countByStatus.DELAYED }}</span>
+    </button>
+    <button class="status-tab chip--red" [class.active]="filterStatus === 'CANCELLED'" (click)="setStatusFilter('CANCELLED')">
+      CANCELLED <span class="tab-count">{{ countByStatus.CANCELLED }}</span>
+    </button>
+    <button class="status-tab chip--green" [class.active]="filterStatus === 'DEPARTED'" (click)="setStatusFilter('DEPARTED')">
+      DEPARTED <span class="tab-count">{{ countByStatus.DEPARTED }}</span>
+    </button>
+    <button class="status-tab chip--green" [class.active]="filterStatus === 'ARRIVED'" (click)="setStatusFilter('ARRIVED')">
+      ARRIVED <span class="tab-count">{{ countByStatus.ARRIVED }}</span>
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-box">
+    <span class="material-symbols-outlined">search</span>
+    <input
+      type="text"
+      placeholder="SEARCH BY FLIGHT NUMBER, ORIGIN OR DESTINATION..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="applyFilters()"
+    />
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>LOADING FLIGHT DATA...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-state" *ngIf="error && !loading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadFlights()">RETRY</button>
+  </div>
+
+  <!-- Flight Cards Grid -->
+  <div class="flights-grid" *ngIf="!loading && !error">
+
+    <div class="flight-card" *ngFor="let flight of filteredFlights; let i = index"
+      [style.animation-delay]="i * 40 + 'ms'">
+
+      <!-- Top Row -->
+      <div class="flight-card__top">
+        <span class="flight-number">{{ getFlightNumber(flight) }}</span>
+        <span class="status-chip" [ngClass]="statusClass(flight.status ?? '')">
+          {{ flight.status }}
+        </span>
+      </div>
+
+      <!-- Route -->
+      <div class="flight-card__route">
+        <div class="route-point">
+          <span class="route-point__iata">{{ getOrigin(flight) }}</span>
+          <span class="route-point__city">{{ getOriginCity(flight) }}</span>
+        </div>
+        <div class="route-line">
+          <span class="route-line__dot"></span>
+          <span class="route-line__track"></span>
+          <span class="material-symbols-outlined route-line__plane">flight</span>
+          <span class="route-line__track"></span>
+          <span class="route-line__dot"></span>
+        </div>
+        <div class="route-point route-point--right">
+          <span class="route-point__iata">{{ getDestination(flight) }}</span>
+          <span class="route-point__city">{{ getDestCity(flight) }}</span>
+        </div>
+      </div>
+
+      <!-- Times -->
+      <div class="flight-card__times">
+        <div class="time-block">
+          <span class="time-block__label">DEPARTURE</span>
+          <span class="time-block__time">{{ flight.departureAt | date:'HH:mm' }}</span>
+          <span class="time-block__date">{{ flight.departureAt | date:'dd MMM' | uppercase }}</span>
+        </div>
+        <div class="time-block time-block--right">
+          <span class="time-block__label">ARRIVAL</span>
+          <span class="time-block__time">{{ flight.arrivalAt | date:'HH:mm' }}</span>
+          <span class="time-block__date">{{ flight.arrivalAt | date:'dd MMM' | uppercase }}</span>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flight-card__footer">
+        <span class="footer-meta">
+          <span class="material-symbols-outlined">airplanemode_active</span>
+          {{ getAircraft(flight) }}
+        </span>
+        <span class="footer-meta">
+          <span class="material-symbols-outlined">event_seat</span>
+          {{ flight.capacity }} SEATS
+        </span>
+        <div class="flight-card__actions">
+          <button class="action-btn action-btn--status" (click)="openPatchStatus(flight)" title="Change Status">
+            <span class="material-symbols-outlined">swap_horiz</span>
+          </button>
+          <button class="action-btn action-btn--delete" (click)="confirmDelete(flight.flightInstanceId!)" title="Delete">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="filteredFlights.length === 0">
+      <span class="material-symbols-outlined">flight_land</span>
+      <p>NO FLIGHTS FOUND</p>
+    </div>
+  </div>
+
+  <!-- Patch Status Modal -->
+  <div class="overlay" *ngIf="patchTarget" (click)="closePatch()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <span class="material-symbols-outlined">swap_horiz</span>
+        <h2 class="modal__title">UPDATE STATUS — {{ getFlightNumber(patchTarget) }}</h2>
+        <button class="modal__close" (click)="closePatch()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal__body">
+        <p class="modal__label">SELECT NEW STATUS</p>
+        <div class="status-selector">
+          <button
+            *ngFor="let s of statuses"
+            class="status-option"
+            [class.status-option--active]="patchStatus === s"
+            [ngClass]="statusClass(s)"
+            (click)="patchStatus = s">
+            {{ s }}
+          </button>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn-ghost" (click)="closePatch()">CANCEL</button>
+        <button class="btn-primary" (click)="saveStatus()" [disabled]="patching">
+          <span class="material-symbols-outlined">check</span>
+          {{ patching ? 'SAVING...' : 'CONFIRM' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm -->
+  <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <span class="material-symbols-outlined">warning</span>
+      <p class="confirm-dialog__title">DELETE FLIGHT?</p>
+      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <div class="confirm-dialog__actions">
+        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
+        <button class="btn-danger" (click)="deleteFlight(deleteConfirmId!)">DELETE</button>
+      </div>
+    </div>
+  </div>
+
+</div>

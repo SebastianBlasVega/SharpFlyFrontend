@@ -26,7 +26,7 @@ export class Login {
       password: this.password
     }).subscribe({
       next: () => {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         console.error(error);

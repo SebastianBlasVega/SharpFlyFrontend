@@ -1,0 +1,229 @@
+<div class="booking-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <span class="material-symbols-outlined page-header__icon">confirmation_number</span>
+      <div>
+        <h1 class="page-header__title">BOOKING REGISTRY</h1>
+        <p class="page-header__sub">Reservations Management</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Tabs -->
+  <div class="status-tabs">
+    <button class="status-tab" [class.active]="filterStatus === 'ALL'" (click)="setStatusFilter('ALL')">
+      ALL <span class="tab-count">{{ countByStatus.ALL }}</span>
+    </button>
+    <button class="status-tab chip--green" [class.active]="filterStatus === 'CONFIRMED'" (click)="setStatusFilter('CONFIRMED')">
+      CONFIRMED <span class="tab-count">{{ countByStatus.CONFIRMED }}</span>
+    </button>
+    <button class="status-tab chip--amber" [class.active]="filterStatus === 'HELD'" (click)="setStatusFilter('HELD')">
+      HELD <span class="tab-count">{{ countByStatus.HELD }}</span>
+    </button>
+    <button class="status-tab chip--red" [class.active]="filterStatus === 'CANCELLED'" (click)="setStatusFilter('CANCELLED')">
+      CANCELLED <span class="tab-count">{{ countByStatus.CANCELLED }}</span>
+    </button>
+    <button class="status-tab chip--red" [class.active]="filterStatus === 'EXPIRED'" (click)="setStatusFilter('EXPIRED')">
+      EXPIRED <span class="tab-count">{{ countByStatus.EXPIRED }}</span>
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-box">
+    <span class="material-symbols-outlined">search</span>
+    <input
+      type="text"
+      placeholder="SEARCH BY PNR..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="applyFilters()"
+    />
+  </div>
+
+  <!-- Loading / Error -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>LOADING BOOKINGS...</p>
+  </div>
+
+  <div class="error-state" *ngIf="error && !loading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadBookings()">RETRY</button>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="main-layout" *ngIf="!loading && !error">
+
+    <!-- Table -->
+    <div class="table-wrapper" [class.table-wrapper--narrow]="selectedBooking">
+      <table class="booking-table">
+        <thead>
+          <tr>
+            <th>PNR</th>
+            <th>FLIGHT ID</th>
+            <th>STATUS</th>
+            <th>PAX</th>
+            <th>HOLD EXPIRES</th>
+            <th>CREATED</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="booking-row"
+            *ngFor="let booking of filteredBookings; let i = index"
+            [class.booking-row--selected]="selectedBooking?.bookingId === booking.bookingId"
+            [style.animation-delay]="i * 35 + 'ms'"
+            (click)="selectBooking(booking)">
+
+            <td><span class="pnr-badge">{{ booking.pnr }}</span></td>
+            <td><span class="id-mono">FLT-{{ booking.flightInstanceId }}</span></td>
+            <td>
+              <span class="status-chip" [ngClass]="statusClass(booking.status)">
+                {{ booking.status }}
+              </span>
+            </td>
+            <td>
+              <span class="pax-cell">
+                <span class="material-symbols-outlined">group</span>
+                {{ booking.passengerCount }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="booking.holdExpiresAt" class="date-mono"
+                [class.expired]="isHoldExpired(booking)">
+                {{ booking.holdExpiresAt | date:'dd MMM HH:mm' | uppercase }}
+              </span>
+              <span *ngIf="!booking.holdExpiresAt" class="text-dim">—</span>
+            </td>
+            <td class="date-mono">{{ booking.createdAt | date:'dd MMM HH:mm' | uppercase }}</td>
+            <td>
+              <div class="action-btns" (click)="$event.stopPropagation()">
+                <button class="action-btn action-btn--confirm"
+                  *ngIf="booking.status === 'HELD'"
+                  (click)="confirmBooking(booking.pnr)"
+                  title="Confirm">
+                  <span class="material-symbols-outlined">check_circle</span>
+                </button>
+                <button class="action-btn action-btn--cancel"
+                  *ngIf="booking.status === 'HELD' || booking.status === 'CONFIRMED'"
+                  (click)="cancelBooking(booking.pnr)"
+                  title="Cancel">
+                  <span class="material-symbols-outlined">cancel</span>
+                </button>
+                <button class="action-btn action-btn--delete"
+                  (click)="confirmDelete(booking.bookingId)"
+                  title="Delete">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredBookings.length === 0">
+            <td colspan="7">
+              <div class="empty-state">
+                <span class="material-symbols-outlined">confirmation_number</span>
+                <p>NO BOOKINGS FOUND</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="detail-panel" *ngIf="selectedBooking">
+      <div class="detail-panel__header">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <h3 class="detail-panel__title">BOOKING DETAIL</h3>
+        <button class="modal__close" (click)="selectedBooking = null">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="detail-panel__body">
+        <!-- PNR + Status -->
+        <div class="detail-block">
+          <span class="detail-pnr">{{ selectedBooking.pnr }}</span>
+          <span class="status-chip" [ngClass]="statusClass(selectedBooking.status)">
+            {{ selectedBooking.status }}
+          </span>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="detail-grid">
+          <div class="detail-field">
+            <span class="detail-field__label">FLIGHT ID</span>
+            <span class="detail-field__value">FLT-{{ selectedBooking.flightInstanceId }}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">PASSENGERS</span>
+            <span class="detail-field__value">{{ selectedBooking.passengerCount }} PAX</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">USER ID</span>
+            <span class="detail-field__value">{{ selectedBooking.createdByUserId ?? '—' }}</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">CREATED</span>
+            <span class="detail-field__value">{{ selectedBooking.createdAt | date:'dd MMM yyyy HH:mm' | uppercase }}</span>
+          </div>
+          <div class="detail-field" *ngIf="selectedBooking.holdExpiresAt">
+            <span class="detail-field__label">HOLD EXPIRES</span>
+            <span class="detail-field__value" [class.expired]="isHoldExpired(selectedBooking)">
+              {{ selectedBooking.holdExpiresAt | date:'dd MMM yyyy HH:mm' | uppercase }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Passengers -->
+        <div class="passengers-section" *ngIf="selectedBooking.passengers?.length">
+          <p class="section-label">PASSENGERS</p>
+          <div class="passenger-card" *ngFor="let p of selectedBooking.passengers">
+            <span class="material-symbols-outlined passenger-card__icon">person</span>
+            <div class="passenger-card__info">
+              <span class="passenger-card__name">{{ p.firstName }} {{ p.lastName }}</span>
+              <span class="passenger-card__doc">{{ p.docType }} · {{ p.docNumber }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="detail-actions">
+          <button class="btn-confirm"
+            *ngIf="selectedBooking.status === 'HELD'"
+            (click)="confirmBooking(selectedBooking.pnr)">
+            <span class="material-symbols-outlined">check_circle</span>
+            CONFIRM BOOKING
+          </button>
+          <button class="btn-cancel-booking"
+            *ngIf="selectedBooking.status === 'HELD' || selectedBooking.status === 'CONFIRMED'"
+            (click)="cancelBooking(selectedBooking.pnr)">
+            <span class="material-symbols-outlined">cancel</span>
+            CANCEL BOOKING
+          </button>
+          <button class="btn-danger-sm" (click)="confirmDelete(selectedBooking.bookingId)">
+            <span class="material-symbols-outlined">delete</span>
+            DELETE
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm -->
+  <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <span class="material-symbols-outlined">warning</span>
+      <p class="confirm-dialog__title">DELETE BOOKING?</p>
+      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <div class="confirm-dialog__actions">
+        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
+        <button class="btn-danger" (click)="deleteBooking(deleteConfirmId!)">DELETE</button>
+      </div>
+    </div>
+  </div>
+
+</div>

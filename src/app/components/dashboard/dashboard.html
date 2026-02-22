@@ -1,0 +1,186 @@
+<div class="dashboard">
+
+  <!-- Header -->
+  <header class="dashboard__header">
+    <div class="header__brand">
+      <span class="material-symbols-outlined header__icon">flight_takeoff</span>
+      <div>
+        <h1 class="header__title">SHARP FLY</h1>
+        <p class="header__subtitle">Operations Center</p>
+      </div>
+    </div>
+
+    <div class="header__clock">
+      <span class="clock__time">{{ currentTime | date:'HH:mm:ss' }}</span>
+      <span class="clock__date">{{ currentTime | date:'EEE dd MMM yyyy' | uppercase }}</span>
+    </div>
+
+    <div class="header__actions">
+      <span class="role-badge" [class.role-badge--admin]="isAdmin">
+        {{ isAdmin ? 'ADMIN' : 'STAFF' }}
+      </span>
+      <button class="btn-logout" (click)="logout()">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="loading-screen" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">LOADING SYSTEMS...</p>
+  </div>
+
+  <main class="dashboard__main" *ngIf="!loading">
+
+    <!-- Stats Grid -->
+    <section class="stats-grid">
+      <div class="stat-card stat-card--flights">
+        <div class="stat-card__header">
+          <span class="material-symbols-outlined stat-card__icon">flight</span>
+          <span class="stat-card__label">TOTAL FLIGHTS</span>
+        </div>
+        <span class="stat-card__value">{{ stats.totalFlights }}</span>
+        <div class="stat-card__sub">
+          <span class="sub-badge sub-badge--green">{{ stats.scheduledFlights }} SCHEDULED</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--bookings">
+        <div class="stat-card__header">
+          <span class="material-symbols-outlined stat-card__icon">confirmation_number</span>
+          <span class="stat-card__label">TOTAL BOOKINGS</span>
+        </div>
+        <span class="stat-card__value">{{ stats.totalBookings }}</span>
+        <div class="stat-card__sub">
+          <span class="sub-badge sub-badge--green">{{ stats.confirmedBookings }} CNF</span>
+          <span class="sub-badge sub-badge--amber">{{ stats.heldBookings }} HLD</span>
+          <span class="sub-badge sub-badge--red">{{ stats.cancelledBookings }} CXL</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--airports">
+        <div class="stat-card__header">
+          <span class="material-symbols-outlined stat-card__icon">location_city</span>
+          <span class="stat-card__label">ACTIVE AIRPORTS</span>
+        </div>
+        <span class="stat-card__value">{{ totalAirports }}</span>
+        <div class="stat-card__sub">
+          <span class="sub-badge sub-badge--green">OPERATIONAL</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card--occ">
+        <div class="stat-card__header">
+          <span class="material-symbols-outlined stat-card__icon">analytics</span>
+          <span class="stat-card__label">OCCUPANCY</span>
+        </div>
+        <span class="stat-card__value">
+          {{ stats.totalBookings > 0
+              ? ((stats.confirmedBookings / stats.totalBookings) * 100 | number:'1.0-0')
+              : 0 }}%
+        </span>
+        <div class="stat-card__sub">
+          <span class="sub-badge sub-badge--amber">CONFIRMED RATE</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="content-grid">
+
+      <!-- FIDS Table: Upcoming Flights -->
+      <div class="fids-panel">
+        <div class="panel__header">
+          <span class="material-symbols-outlined">departure_board</span>
+          <h2 class="panel__title">UPCOMING DEPARTURES</h2>
+          <a routerLink="/flights" class="panel__link">VIEW ALL →</a>
+        </div>
+
+        <div class="fids-table">
+          <div class="fids-table__head">
+            <span>FLIGHT</span>
+            <span>ORIGIN</span>
+            <span>DEST</span>
+            <span>DEPARTURE</span>
+            <span>STATUS</span>
+            <span>CAPACITY</span>
+          </div>
+
+          <div class="fids-table__body">
+            <div class="fids-row" *ngFor="let flight of upcomingFlights; let i = index"
+              [style.animation-delay]="i * 60 + 'ms'">
+              <span class="fids-row__flight">{{ getFlightNumber(flight) }}</span>
+              <span class="fids-row__iata">{{ getFlightOrigin(flight) }}</span>
+              <span class="fids-row__iata">{{ getFlightDestination(flight) }}</span>
+              <span class="fids-row__time">{{ flight.departureAt | date:'HH:mm' }}</span>
+              <span class="status-pill" [ngClass]="getStatusClass(flight.status ?? '')">
+                {{ flight.status }}
+              </span>
+              <span class="fids-row__capacity">{{ flight.capacity }}</span>
+            </div>
+
+            <div class="fids-empty" *ngIf="upcomingFlights.length === 0">
+              <span class="material-symbols-outlined">flight_land</span>
+              <p>NO UPCOMING FLIGHTS</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Bookings -->
+      <div class="bookings-panel">
+        <div class="panel__header">
+          <span class="material-symbols-outlined">receipt_long</span>
+          <h2 class="panel__title">RECENT BOOKINGS</h2>
+          <a routerLink="/bookings" class="panel__link">VIEW ALL →</a>
+        </div>
+
+        <div class="booking-list">
+          <div class="booking-card" *ngFor="let booking of recentBookings; let i = index"
+            [style.animation-delay]="i * 80 + 'ms'">
+            <div class="booking-card__top">
+              <span class="booking-card__pnr">{{ booking.pnr }}</span>
+              <span class="status-pill" [ngClass]="getStatusClass(booking.status)">
+                {{ booking.status }}
+              </span>
+            </div>
+            <div class="booking-card__bottom">
+              <span class="booking-card__meta">
+                <span class="material-symbols-outlined">group</span>
+                {{ booking.passengerCount }} PAX
+              </span>
+              <span class="booking-card__meta">
+                <span class="material-symbols-outlined">schedule</span>
+                {{ booking.createdAt | date:'dd MMM HH:mm' | uppercase }}
+              </span>
+            </div>
+          </div>
+
+          <div class="fids-empty" *ngIf="recentBookings.length === 0">
+            <span class="material-symbols-outlined">confirmation_number</span>
+            <p>NO RECENT BOOKINGS</p>
+          </div>
+        </div>
+
+        <!-- Quick Actions (Admin only) -->
+        <div class="quick-actions" *ngIf="isAdmin">
+          <p class="quick-actions__label">QUICK ACTIONS</p>
+          <a routerLink="/flights/new" class="quick-btn">
+            <span class="material-symbols-outlined">add_circle</span>
+            NEW FLIGHT
+          </a>
+          <a routerLink="/airports" class="quick-btn">
+            <span class="material-symbols-outlined">location_city</span>
+            AIRPORTS
+          </a>
+          <a routerLink="/aircraft" class="quick-btn">
+            <span class="material-symbols-outlined">airplanemode_active</span>
+            AIRCRAFT
+          </a>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>

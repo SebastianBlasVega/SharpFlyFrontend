@@ -1,0 +1,193 @@
+<div class="airport-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <span class="material-symbols-outlined page-header__icon">location_city</span>
+      <div>
+        <h1 class="page-header__title">AIRPORT REGISTRY</h1>
+        <p class="page-header__sub">Airport Management</p>
+      </div>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">add</span>
+      ADD AIRPORT
+    </button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-item__value">{{ allAirports.length }}</span>
+      <span class="stat-item__label">TOTAL</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--green">{{ activeCount }}</span>
+      <span class="stat-item__label">ACTIVE</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--red">{{ inactiveCount }}</span>
+      <span class="stat-item__label">INACTIVE</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--amber">{{ countries.length }}</span>
+      <span class="stat-item__label">COUNTRIES</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input
+        type="text"
+        placeholder="SEARCH BY IATA, NAME, CITY OR COUNTRY..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === undefined" (click)="setActiveFilter(undefined)">ALL</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === true"      (click)="setActiveFilter(true)">ACTIVE</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === false"     (click)="setActiveFilter(false)">INACTIVE</button>
+    </div>
+  </div>
+
+  <!-- Loading / Error -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>LOADING AIRPORTS...</p>
+  </div>
+
+  <div class="error-state" *ngIf="error && !loading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadAirports()">RETRY</button>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="airports-grid" *ngIf="!loading && !error">
+    <div class="airport-card"
+      *ngFor="let airport of filteredAirports; let i = index"
+      [style.animation-delay]="i * 35 + 'ms'"
+      [class.airport-card--inactive]="!airport.isActive">
+
+      <!-- Top -->
+      <div class="airport-card__top">
+        <span class="iata-code">{{ airport.iata }}</span>
+        <span class="status-chip" [class.chip--green]="airport.isActive" [class.chip--red]="!airport.isActive">
+          {{ airport.isActive ? 'ACTIVE' : 'INACTIVE' }}
+        </span>
+      </div>
+
+      <!-- Name -->
+      <div class="airport-card__name">{{ airport.name }}</div>
+
+      <!-- Location -->
+      <div class="airport-card__location">
+        <span class="material-symbols-outlined">location_on</span>
+        {{ airport.city }}, {{ airport.country }}
+      </div>
+
+      <!-- Timezone -->
+      <div class="airport-card__tz">
+        <span class="material-symbols-outlined">schedule</span>
+        {{ airport.timezone }}
+      </div>
+
+      <!-- Actions -->
+      <div class="airport-card__actions">
+        <button class="action-btn action-btn--edit" (click)="openEdit(airport)" title="Edit">
+          <span class="material-symbols-outlined">edit</span>
+          EDIT
+        </button>
+        <button class="action-btn action-btn--delete" (click)="confirmDelete(airport.airportId!)" title="Delete">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredAirports.length === 0">
+      <span class="material-symbols-outlined">flight_land</span>
+      <p>NO AIRPORTS FOUND</p>
+    </div>
+  </div>
+
+  <!-- Delete Confirm -->
+  <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <span class="material-symbols-outlined">warning</span>
+      <p class="confirm-dialog__title">DELETE AIRPORT?</p>
+      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <div class="confirm-dialog__actions">
+        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
+        <button class="btn-danger" (click)="deleteAirport(deleteConfirmId!)">DELETE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create / Edit Modal -->
+  <div class="overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <span class="material-symbols-outlined">{{ editMode ? 'edit' : 'add_circle' }}</span>
+        <h2 class="modal__title">{{ editMode ? 'EDIT AIRPORT' : 'NEW AIRPORT' }}</h2>
+        <button class="modal__close" (click)="closeModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">IATA CODE <span class="required">*</span></label>
+            <input class="form-input form-input--mono" type="text" placeholder="e.g. LIM" maxlength="3"
+              [(ngModel)]="form.iata" (input)="form.iata = form.iata!.toUpperCase()" />
+          </div>
+          <div class="form-group form-group--grow">
+            <label class="form-label">AIRPORT NAME <span class="required">*</span></label>
+            <input class="form-input" type="text" placeholder="e.g. Jorge Chávez International Airport"
+              [(ngModel)]="form.name" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">CITY <span class="required">*</span></label>
+            <input class="form-input" type="text" placeholder="e.g. Lima" [(ngModel)]="form.city" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">COUNTRY <span class="required">*</span></label>
+            <input class="form-input" type="text" placeholder="e.g. Peru" [(ngModel)]="form.country" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">TIMEZONE <span class="required">*</span></label>
+          <input class="form-input form-input--mono" type="text" placeholder="e.g. America/Lima"
+            [(ngModel)]="form.timezone" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">STATUS</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" [class.toggle-btn--on]="form.isActive === true" (click)="form.isActive = true">ACTIVE</button>
+            <button class="toggle-btn" [class.toggle-btn--off]="form.isActive === false" (click)="form.isActive = false">INACTIVE</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn-ghost" (click)="closeModal()">CANCEL</button>
+        <button class="btn-primary" (click)="save()" [disabled]="saving">
+          <span class="material-symbols-outlined">{{ saving ? 'hourglass_empty' : 'check' }}</span>
+          {{ saving ? 'SAVING...' : 'SAVE' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
