@@ -1,13 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError,timeout } from 'rxjs/operators';
 import { FlightInstanceService } from '../../services/flight/flight-instance.service';
 import { BookingService } from '../../services/booking/booking.service';
 import { AirportService } from '../../services/flight/airport.service';
 import { AuthService } from '../../services/auth.service';
 import { FlightInstance } from '../../models/flight-instance';
 import { BookingResponseDto } from '../../models/DTOs/api-respose';
+import { Observable } from 'rxjs';
+import { Airport } from '../../models/airport';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -25,7 +28,6 @@ export class Dashboard implements OnInit {
   // Estado
   loading = true;
   currentTime = new Date();
-  private intervalId!: number;
 
   // Datos
   upcomingFlights: FlightInstance[] = [];
@@ -43,60 +45,52 @@ export class Dashboard implements OnInit {
   };
 
   get isAdmin(): boolean {
-    // Ajusta según tu lógica de roles en el token JWT
-    const token = this.authService.getToken();
-    if (!token) return false;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role === 'ADMIN';
-    } catch {
-      return false;
-    }
-  }
+  return this.authService.isAdmin();
+}
 
   ngOnInit(): void {
+    this.startClock();
     this.loadDashboardData();
-
-    this.intervalId = window.setInterval(() => {
-      this.currentTime = new Date();
-    }, 1000);
-  }
-  
-    ngOnDestroy(): void {
-    clearInterval(this.intervalId);
   }
 
   private startClock(): void {
     setInterval(() => (this.currentTime = new Date()), 1000);
   }
 
-  private loadDashboardData(): void {
-    forkJoin({
-      upcoming: this.flightService.getUpcomingFlights(),
-      allFlights: this.flightService.getAllFlightInstances(),
-      allBookings: this.bookingService.getAllBookings(),
-      airports: this.airportService.getAllAirports(true),
-    }).subscribe({
-      next: ({ upcoming, allFlights, allBookings, airports }) => {
-        this.upcomingFlights = upcoming.slice(0, 6);
-        this.recentBookings = allBookings.slice(-5).reverse();
-        this.totalAirports = airports.length;
+private loadDashboardData(): void {
+  const safe = <T>(obs$: Observable<T>, fallback: T): Observable<T> =>
+    obs$.pipe(
+      timeout(8000),
+      catchError(err => {
+        console.warn('API call failed or timed out:', err);
+        return of(fallback);
+      })
+    );
 
-        this.stats.totalFlights = allFlights.length;
-        this.stats.scheduledFlights = allFlights.filter(f => f.status === 'SCHEDULED').length;
-        this.stats.totalBookings = allBookings.length;
-        this.stats.confirmedBookings = allBookings.filter(b => b.status === 'CONFIRMED').length;
-        this.stats.heldBookings = allBookings.filter(b => b.status === 'HELD').length;
-        this.stats.cancelledBookings = allBookings.filter(b => b.status === 'CANCELLED').length;
-
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading dashboard data:', err);
-        this.loading = false;
-      },
-    });
-  }
+  forkJoin({
+    upcoming:    safe<FlightInstance[]>(this.flightService.getUpcomingFlights(),    []),
+    allFlights:  safe<FlightInstance[]>(this.flightService.getAllFlightInstances(),  []),
+    allBookings: safe<BookingResponseDto[]>(this.bookingService.getAllBookings(),    []),
+    airports:    safe<Airport[]>(this.airportService.getAllAirports(true),           []),
+  }).subscribe({
+    next: ({ upcoming, allFlights, allBookings, airports }) => {
+      this.upcomingFlights = upcoming.slice(0, 6);
+      this.recentBookings  = allBookings.slice(-5).reverse();
+      this.totalAirports   = airports.length;
+      this.stats.totalFlights      = allFlights.length;
+      this.stats.scheduledFlights  = allFlights.filter(f => f.status === 'SCHEDULED').length;
+      this.stats.totalBookings     = allBookings.length;
+      this.stats.confirmedBookings = allBookings.filter(b => b.status === 'CONFIRMED').length;
+      this.stats.heldBookings      = allBookings.filter(b => b.status === 'HELD').length;
+      this.stats.cancelledBookings = allBookings.filter(b => b.status === 'CANCELLED').length;
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Dashboard error:', err);
+      this.loading = false;
+    }
+  });
+}
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {

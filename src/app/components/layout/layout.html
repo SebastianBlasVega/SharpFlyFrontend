@@ -1,0 +1,74 @@
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" [class.sidebar--collapsed]="collapsed">
+
+    <!-- Brand -->
+    <div class="sidebar__brand">
+      <div class="brand-icon">
+        <span class="material-symbols-outlined">flight_takeoff</span>
+      </div>
+      <span class="brand-name" *ngIf="!collapsed">Sharp Fly</span>
+      <button class="collapse-btn" (click)="toggleCollapse()">
+        <span class="material-symbols-outlined">
+          {{ collapsed ? 'chevron_right' : 'chevron_left' }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Nav Items -->
+    <nav class="sidebar__nav">
+      <p class="nav-section-label" *ngIf="!collapsed">OPERATIONS</p>
+
+      <a
+        *ngFor="let item of visibleItems"
+        [routerLink]="item.route"
+        class="nav-item"
+        [class.nav-item--active]="isActive(item.route)"
+        [title]="collapsed ? item.label : ''">
+        <span class="material-symbols-outlined nav-item__icon"
+          [style.font-variation-settings]="isActive(item.route) ? '\'FILL\' 1' : '\'FILL\' 0'">
+          {{ item.icon }}
+        </span>
+        <span class="nav-item__label" *ngIf="!collapsed">{{ item.label }}</span>
+        <span class="nav-item__active-bar" *ngIf="isActive(item.route)"></span>
+      </a>
+
+      <!-- New Booking shortcut -->
+      <div class="nav-divider" *ngIf="!collapsed"></div>
+
+      <a routerLink="/bookings/new" class="nav-item nav-item--cta" [title]="collapsed ? 'New Booking' : ''">
+        <span class="material-symbols-outlined nav-item__icon">add_circle</span>
+        <span class="nav-item__label" *ngIf="!collapsed">New Booking</span>
+      </a>
+    </nav>
+
+    <!-- User / Logout -->
+    <div class="sidebar__footer">
+      <div class="user-info" *ngIf="!collapsed">
+        <div class="user-avatar">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <div class="user-details">
+          <span class="user-role">{{ isAdmin ? 'Admin' : 'Noob' }}</span>
+          <span class="user-role">{{ authService.getUsername() }}</span>
+          <span class="user-status">
+            <span class="status-dot"></span>
+            Online
+          </span>
+        </div>
+      </div>
+
+      <button class="logout-btn" (click)="logout()" [title]="collapsed ? 'Logout' : ''">
+        <span class="material-symbols-outlined">logout</span>
+        <span *ngIf="!collapsed">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="layout__content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>

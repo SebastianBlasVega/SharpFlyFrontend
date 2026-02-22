@@ -1,0 +1,287 @@
+/* ============================================================
+   LAYOUT — Sharp Fly Navigation
+   Usa variables propias para no depender de Tailwind en el sidebar
+============================================================ */
+
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+  background: #080c10;
+  overflow: hidden;
+}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #0a0f15;
+  border-right: 1px solid #1e2d3d;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.25s ease, min-width 0.25s ease;
+  z-index: 50;
+}
+
+.sidebar--collapsed {
+  width: 64px;
+  min-width: 64px;
+}
+
+/* Brand */
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.1rem 1rem;
+  border-bottom: 1px solid #1e2d3d;
+  min-height: 60px;
+}
+
+.brand-icon {
+  width: 34px;
+  height: 34px;
+  background: rgba(19, 127, 236, 0.12);
+  border: 1px solid rgba(19, 127, 236, 0.3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-icon .material-symbols-outlined {
+  font-size: 1.1rem;
+  color: #137fec;
+}
+
+.brand-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #e8f4f8;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.collapse-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #4a6a82;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.collapse-btn:hover { color: #e8f4f8; }
+.collapse-btn .material-symbols-outlined { font-size: 1.1rem; }
+
+.sidebar--collapsed .collapse-btn { margin-left: 0; }
+
+/* Nav */
+.sidebar__nav {
+  flex: 1;
+  padding: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: #4a6a82;
+  padding: 0 0.6rem;
+  margin-bottom: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  color: #6b8fa8;
+  text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  position: relative;
+  transition: all 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nav-item:hover {
+  background: rgba(19, 127, 236, 0.06);
+  color: #e8f4f8;
+}
+
+.nav-item--active {
+  background: rgba(19, 127, 236, 0.1);
+  color: #137fec;
+}
+
+.nav-item--active:hover { color: #137fec; }
+
+.nav-item__icon {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  transition: font-variation-settings 0.2s;
+}
+
+.nav-item__label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item__active-bar {
+  position: absolute;
+  right: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  background: #137fec;
+  border-radius: 3px 0 0 3px;
+}
+
+/* CTA Item */
+.nav-item--cta {
+  background: rgba(19, 127, 236, 0.08);
+  border: 1px solid rgba(19, 127, 236, 0.2);
+  color: #137fec;
+  margin-top: 0.25rem;
+}
+
+.nav-item--cta:hover {
+  background: rgba(19, 127, 236, 0.15);
+  border-color: rgba(19, 127, 236, 0.4);
+  color: #137fec;
+}
+
+.nav-divider {
+  height: 1px;
+  background: #1e2d3d;
+  margin: 0.5rem 0.75rem;
+}
+
+/* Footer */
+.sidebar__footer {
+  padding: 0.75rem 0.5rem;
+  border-top: 1px solid #1e2d3d;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(30, 45, 61, 0.3);
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(19, 127, 236, 0.1);
+  border: 1px solid rgba(19, 127, 236, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-avatar .material-symbols-outlined { font-size: 0.95rem; color: #137fec; }
+
+.user-details { display: flex; flex-direction: column; gap: 0.1rem; overflow: hidden; }
+
+.user-role {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #e8f4f8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.6rem;
+  color: #4a6a82;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00e676;
+  box-shadow: 0 0 4px rgba(0, 230, 118, 0.6);
+  flex-shrink: 0;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: 1px solid #1e2d3d;
+  border-radius: 6px;
+  color: #4a6a82;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  justify-content: center;
+}
+
+.logout-btn .material-symbols-outlined { font-size: 1rem; }
+.logout-btn:hover { border-color: #ff3d57; color: #ff3d57; background: rgba(255, 61, 87, 0.05); }
+
+/* ============================================================
+   MAIN CONTENT
+============================================================ */
+.layout__content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Collapsed state — centrar iconos */
+.sidebar--collapsed .sidebar__nav { padding: 1rem 0.4rem; align-items: center; }
+.sidebar--collapsed .nav-item { justify-content: center; padding: 0.65rem; }
+.sidebar--collapsed .nav-item__active-bar { top: 10%; bottom: 10%; }
+.sidebar--collapsed .sidebar__footer { align-items: center; }
+.sidebar--collapsed .logout-btn { padding: 0.55rem; width: auto; }
+
+/* Scrollbar del content */
+.layout__content::-webkit-scrollbar { width: 4px; }
+.layout__content::-webkit-scrollbar-track { background: transparent; }
+.layout__content::-webkit-scrollbar-thumb { background: #1e2d3d; border-radius: 4px; }
+.layout__content::-webkit-scrollbar-thumb:hover { background: #2a4060; }
