@@ -1,0 +1,280 @@
+<div class="user-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <span class="material-symbols-outlined page-header__icon">manage_accounts</span>
+      <div>
+        <h1 class="page-header__title">USER MANAGEMENT</h1>
+        <p class="page-header__sub">System Access Control</p>
+      </div>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">person_add</span>
+      NEW USER
+    </button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-item__value">{{ allUsers.length }}</span>
+      <span class="stat-item__label">TOTAL USERS</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--amber">{{ adminCount }}</span>
+      <span class="stat-item__label">ADMINISTRATORS</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--blue">{{ userCount }}</span>
+      <span class="stat-item__label">STAFF</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" placeholder="SEARCH BY USERNAME..."
+        [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" />
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab" [class.filter-tab--active]="filterRole === 'ALL'"   (click)="setRoleFilter('ALL')">ALL</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterRole === 'ADMIN'" (click)="setRoleFilter('ADMIN')">ADMIN</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterRole === 'USER'"  (click)="setRoleFilter('USER')">STAFF</button>
+    </div>
+  </div>
+
+  <!-- Loading / Error -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>LOADING USERS...</p>
+  </div>
+  <div class="error-state" *ngIf="error && !loading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadUsers()">RETRY</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper" *ngIf="!loading && !error">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>USERNAME</th>
+          <th>ROLE</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="user-row"
+          *ngFor="let user of filteredUsers; let i = index"
+          [style.animation-delay]="i * 35 + 'ms'"
+          [class.user-row--self]="isSelf(user)">
+
+          <td><span class="id-badge">#{{ user.id }}</span></td>
+
+          <td>
+            <div class="username-cell">
+              <div class="user-avatar" [class.user-avatar--admin]="user.role === 'ADMIN'">
+                {{ user.username[0].toUpperCase() }}
+              </div>
+              <div>
+                <span class="username">{{ user.username }}</span>
+                <span class="self-badge" *ngIf="isSelf(user)">YOU</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="role-chip" [ngClass]="roleClass(user.role)">
+              <span class="material-symbols-outlined">
+                {{ user.role === 'ADMIN' ? 'shield' : 'badge' }}
+              </span>
+              {{ user.role === 'ADMIN' ? 'Administrator' : 'Staff' }}
+            </span>
+          </td>
+
+          <td>
+            <div class="action-btns">
+              <button class="action-btn action-btn--edit"
+                (click)="openEdit(user)" title="Edit">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="action-btn action-btn--delete"
+                (click)="confirmDelete(user.id!)"
+                [disabled]="isSelf(user)"
+                [title]="isSelf(user) ? 'Cannot delete your own account' : 'Delete'">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="4">
+            <div class="empty-state">
+              <span class="material-symbols-outlined">group_off</span>
+              <p>NO USERS FOUND</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Delete Confirm -->
+  <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <span class="material-symbols-outlined">warning</span>
+      <p class="confirm-dialog__title">DELETE USER?</p>
+      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <div class="confirm-dialog__actions">
+        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
+        <button class="btn-danger" (click)="deleteUser(deleteConfirmId!)">DELETE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create / Edit Modal -->
+  <div class="overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <div class="modal__header">
+        <span class="material-symbols-outlined">{{ editMode ? 'manage_accounts' : 'person_add' }}</span>
+        <h2 class="modal__title">{{ editMode ? 'EDIT USER — ' + form.username : 'NEW USER' }}</h2>
+        <button class="modal__close" (click)="closeModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal__body">
+
+        <!-- Username -->
+        <div class="form-group">
+          <label class="form-label">USERNAME <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon">person</span>
+            <input class="form-input form-input--icon form-input--mono"
+              type="text"
+              placeholder="e.g. carlos.mendoza"
+              [(ngModel)]="form.username"
+              (ngModelChange)="onUsernameInput()"
+              [disabled]="editMode" />
+            <span class="input-status" *ngIf="checkingUsername">
+              <div class="spinner-sm"></div>
+            </span>
+            <span class="input-status input-status--ok" *ngIf="!checkingUsername && form.username && !usernameExists && !editMode">
+              <span class="material-symbols-outlined">check_circle</span>
+            </span>
+            <span class="input-status input-status--err" *ngIf="usernameExists && !editMode">
+              <span class="material-symbols-outlined">cancel</span>
+            </span>
+          </div>
+          <span class="form-error" *ngIf="usernameExists && !editMode">
+            Username already exists.
+          </span>
+        </div>
+
+        <!-- Role Selector -->
+        <div class="form-group">
+          <label class="form-label">ROLE <span class="required">*</span></label>
+          <div class="role-selector">
+
+            <div class="role-option"
+              [class.role-option--active]="form.role === 'USER'"
+              (click)="form.role = 'USER'">
+              <div class="role-option__icon role-option__icon--blue">
+                <span class="material-symbols-outlined">badge</span>
+              </div>
+              <div class="role-option__info">
+                <span class="role-option__name">Staff</span>
+                <span class="role-option__desc">Can manage flights and bookings</span>
+              </div>
+              <div class="role-option__radio">
+                <div class="radio-dot" [class.radio-dot--on]="form.role === 'USER'"></div>
+              </div>
+            </div>
+
+            <div class="role-option"
+              [class.role-option--active]="form.role === 'ADMIN'"
+              (click)="form.role = 'ADMIN'">
+              <div class="role-option__icon role-option__icon--amber">
+                <span class="material-symbols-outlined">shield</span>
+              </div>
+              <div class="role-option__info">
+                <span class="role-option__name">Administrator</span>
+                <span class="role-option__desc">Full system access including airports, aircraft and users</span>
+              </div>
+              <div class="role-option__radio">
+                <div class="radio-dot radio-dot--amber" [class.radio-dot--on]="form.role === 'ADMIN'"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="section-divider">
+          <span>{{ editMode ? 'CHANGE PASSWORD (OPTIONAL)' : 'PASSWORD' }}</span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label">
+            PASSWORD
+            <span class="required" *ngIf="!editMode">*</span>
+            <span class="form-hint-inline" *ngIf="editMode">Leave blank to keep current</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon">lock</span>
+            <input class="form-input form-input--icon"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="{{ editMode ? '••••••••' : 'Min. 6 characters' }}"
+              [(ngModel)]="form.password" />
+            <button class="toggle-password" type="button" (click)="showPassword = !showPassword">
+              <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <span class="form-error" *ngIf="!editMode && form.password && form.password.length < 6">
+            Password must be at least 6 characters.
+          </span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label class="form-label">CONFIRM PASSWORD
+            <span class="required" *ngIf="!editMode">*</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon">lock_reset</span>
+            <input class="form-input form-input--icon"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              placeholder="Repeat password"
+              [(ngModel)]="form.confirmPassword" />
+            <button class="toggle-password" type="button" (click)="showConfirmPassword = !showConfirmPassword">
+              <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <span class="form-error" *ngIf="passwordMismatch">
+            Passwords do not match.
+          </span>
+        </div>
+
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn-ghost" (click)="closeModal()">CANCEL</button>
+        <button class="btn-primary" (click)="save()" [disabled]="!formValid || saving">
+          <span class="material-symbols-outlined">{{ saving ? 'hourglass_empty' : (editMode ? 'save' : 'person_add') }}</span>
+          {{ saving ? 'SAVING...' : (editMode ? 'SAVE CHANGES' : 'CREATE USER') }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,246 @@
+<div class="template-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <span class="material-symbols-outlined page-header__icon">content_copy</span>
+      <div>
+        <h1 class="page-header__title">FLIGHT TEMPLATES</h1>
+        <p class="page-header__sub">Reusable Flight Definitions</p>
+      </div>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">add</span>
+      NEW TEMPLATE
+    </button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-item__value">{{ allTemplates.length }}</span>
+      <span class="stat-item__label">TOTAL</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--green">{{ activeCount }}</span>
+      <span class="stat-item__label">ACTIVE</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--red">{{ inactiveCount }}</span>
+      <span class="stat-item__label">INACTIVE</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--blue">{{ routes.length }}</span>
+      <span class="stat-item__label">ROUTES AVAILABLE</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--amber">{{ aircrafts.length }}</span>
+      <span class="stat-item__label">AIRCRAFT AVAILABLE</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" placeholder="SEARCH BY FLIGHT NUMBER, IATA OR AIRCRAFT..."
+        [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" />
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === undefined" (click)="setActiveFilter(undefined)">ALL</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === true"      (click)="setActiveFilter(true)">ACTIVE</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === false"     (click)="setActiveFilter(false)">INACTIVE</button>
+    </div>
+  </div>
+
+  <!-- Loading / Error -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>LOADING TEMPLATES...</p>
+  </div>
+  <div class="error-state" *ngIf="error && !loading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadTemplates()">RETRY</button>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="templates-grid" *ngIf="!loading && !error">
+
+    <div class="template-card"
+      *ngFor="let t of filteredTemplates; let i = index"
+      [style.animation-delay]="i * 40 + 'ms'"
+      [class.template-card--inactive]="!t.isActive">
+
+      <!-- Top row -->
+      <div class="template-card__top">
+        <span class="flight-number">{{ t.flightNumber }}</span>
+        <span class="status-chip" [class.chip--green]="t.isActive" [class.chip--red]="!t.isActive">
+          {{ t.isActive ? 'ACTIVE' : 'INACTIVE' }}
+        </span>
+      </div>
+
+      <!-- Route -->
+      <div class="template-card__route">
+        <div class="route-point">
+          <span class="route-iata">{{ t.route?.originAirport?.iata ?? '???' }}</span>
+          <span class="route-city">{{ t.route?.originAirport?.city ?? '' }}</span>
+        </div>
+        <div class="route-connector">
+          <span class="connector-dot"></span>
+          <span class="connector-line"></span>
+          <span class="material-symbols-outlined connector-plane">flight</span>
+          <span class="connector-line"></span>
+          <span class="connector-dot"></span>
+        </div>
+        <div class="route-point route-point--right">
+          <span class="route-iata route-iata--dest">{{ t.route?.destinationAirport?.iata ?? '???' }}</span>
+          <span class="route-city">{{ t.route?.destinationAirport?.city ?? '' }}</span>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="template-card__details">
+        <div class="detail-item">
+          <span class="material-symbols-outlined">airplanemode_active</span>
+          <div class="detail-item__info">
+            <span class="detail-item__label">AIRCRAFT</span>
+            <span class="detail-item__value">{{ t.aircraft?.code ?? '—' }} · {{ t.aircraft?.model ?? '' }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <span class="material-symbols-outlined">schedule</span>
+          <div class="detail-item__info">
+            <span class="detail-item__label">DURATION</span>
+            <span class="detail-item__value">{{ formatDuration(t.defaultDurationMinutes ?? 0) }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <span class="material-symbols-outlined">event_seat</span>
+          <div class="detail-item__info">
+            <span class="detail-item__label">CAPACITY</span>
+            <span class="detail-item__value">{{ t.aircraft?.seatCapacity ?? '—' }} SEATS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="template-card__actions">
+        <button class="action-btn action-btn--edit" (click)="openEdit(t)">
+          <span class="material-symbols-outlined">edit</span>
+          EDIT
+        </button>
+        <button class="action-btn action-btn--delete" (click)="confirmDelete(t.flightTemplateId!)">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="filteredTemplates.length === 0">
+      <span class="material-symbols-outlined">content_copy</span>
+      <p>NO TEMPLATES FOUND</p>
+    </div>
+  </div>
+
+  <!-- Delete Confirm -->
+  <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <span class="material-symbols-outlined">warning</span>
+      <p class="confirm-dialog__title">DELETE TEMPLATE?</p>
+      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <div class="confirm-dialog__actions">
+        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
+        <button class="btn-danger" (click)="deleteTemplate(deleteConfirmId!)">DELETE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create / Edit Modal -->
+  <div class="overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <span class="material-symbols-outlined">{{ editMode ? 'edit' : 'add_circle' }}</span>
+        <h2 class="modal__title">{{ editMode ? 'EDIT TEMPLATE' : 'NEW TEMPLATE' }}</h2>
+        <button class="modal__close" (click)="closeModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal__body">
+
+        <!-- Flight Number -->
+        <div class="form-group">
+          <label class="form-label">FLIGHT NUMBER <span class="required">*</span></label>
+          <input class="form-input form-input--mono" type="text"
+            placeholder="e.g. SF101"
+            [(ngModel)]="form.flightNumber"
+            (input)="form.flightNumber = form.flightNumber!.toUpperCase()" />
+        </div>
+
+        <!-- Route -->
+        <div class="form-group">
+          <label class="form-label">ROUTE <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select class="form-input form-select" [(ngModel)]="form.routeId">
+              <option [ngValue]="undefined" disabled>Select route</option>
+              <option *ngFor="let r of routes" [ngValue]="r.routeId">
+                {{ r.originAirport?.iata }} → {{ r.destinationAirport?.iata }}
+                ({{ r.originAirport?.city }} → {{ r.destinationAirport?.city }})
+              </option>
+            </select>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Aircraft -->
+        <div class="form-group">
+          <label class="form-label">AIRCRAFT <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select class="form-input form-select" [(ngModel)]="form.aircraftId">
+              <option [ngValue]="undefined" disabled>Select aircraft</option>
+              <option *ngFor="let a of aircrafts" [ngValue]="a.aircraftId">
+                {{ a.code }} — {{ a.model }} ({{ a.seatCapacity }} seats)
+              </option>
+            </select>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div class="form-group">
+          <label class="form-label">DEFAULT DURATION (MINUTES) <span class="required">*</span></label>
+          <input class="form-input form-input--mono" type="number"
+            min="30" max="1440" placeholder="e.g. 195"
+            [(ngModel)]="form.defaultDurationMinutes" />
+          <span class="form-hint" *ngIf="form.defaultDurationMinutes">
+            ≈ {{ formatDuration(form.defaultDurationMinutes ?? 0) }}
+          </span>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label class="form-label">STATUS</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" [class.toggle-btn--on]="form.isActive === true"  (click)="form.isActive = true">ACTIVE</button>
+            <button class="toggle-btn" [class.toggle-btn--off]="form.isActive === false" (click)="form.isActive = false">INACTIVE</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn-ghost" (click)="closeModal()">CANCEL</button>
+        <button class="btn-primary" (click)="save()"
+          [disabled]="saving || !form.flightNumber || !form.routeId || !form.aircraftId">
+          <span class="material-symbols-outlined">{{ saving ? 'hourglass_empty' : 'check' }}</span>
+          {{ saving ? 'SAVING...' : 'SAVE' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

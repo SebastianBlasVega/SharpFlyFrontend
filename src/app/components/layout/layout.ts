@@ -31,6 +31,9 @@ export class Layout {
     { label: 'Bookings',   icon: 'confirmation_number',   route: '/booking-list' },
     { label: 'Airports',   icon: 'location_city',         route: '/airport-list',  adminOnly: true },
     { label: 'Aircraft',   icon: 'airplanemode_active',   route: '/aircraft-list', adminOnly: true },
+    { label: 'Routes',     icon: 'compare_arrows',        route: '/route-list',    adminOnly: true },
+    { label: 'Templates',  icon: 'flight_takeoff',        route: '/flight-template-list', adminOnly: true },
+    { label: 'Users',      icon: 'people',                route: '/user-list',     adminOnly: true },
   ];
 
   constructor() {

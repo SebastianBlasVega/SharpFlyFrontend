@@ -24,17 +24,17 @@
     <div class="stat-divider"></div>
     <div class="stat-item">
       <span class="stat-item__value stat-item__value--green">{{ activeCount }}</span>
-      <span class="stat-item__label">ACTIVE</span>
+      <span class="stat-item__label">ACTIVOS</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
       <span class="stat-item__value stat-item__value--red">{{ inactiveCount }}</span>
-      <span class="stat-item__label">INACTIVE</span>
+      <span class="stat-item__label">INACTIVOS</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
       <span class="stat-item__value stat-item__value--amber">{{ totalCapacity }}</span>
-      <span class="stat-item__label">TOTAL SEATS (ACTIVE)</span>
+      <span class="stat-item__label">TOTAL ASIENTOS(ACTIVOS)</span>
     </div>
   </div>
 
@@ -45,7 +45,7 @@
       <input
         class="search-box__input"
         type="text"
-        placeholder="SEARCH BY CODE OR MODEL..."
+        placeholder="BUSCAR POR CÓDIGO O MODELO..."
         [(ngModel)]="searchQuery"
         (ngModelChange)="applyFilters()"
       />
