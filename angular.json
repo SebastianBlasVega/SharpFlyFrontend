@@ -36,25 +36,28 @@
           },
           "configurations": {
             "production": {
-              "optimization": {
-                "scripts": true,
-                "styles": true,
-                "fonts": false
-              },
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
-                }
-              ],
-              "outputHashing": "all"
-            },
+  "optimization": {
+    "scripts": true,
+    "styles": true,
+    "fonts": false,
+    "fonts": {
+      "inline": false
+    }
+  },
+  "budgets": [
+    {
+      "type": "initial",
+      "maximumWarning": "650kB",
+      "maximumError": "750kB"
+    },
+    {
+      "type": "anyComponentStyle",
+      "maximumWarning": "6kB",
+      "maximumError": "10kB"
+    }
+  ],
+  "outputHashing": "all"
+},
             "development": {
               "optimization": false,
               "extractLicenses": false,
