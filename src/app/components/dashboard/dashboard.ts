@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject,ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -19,6 +19,7 @@ import { Airport } from '../../models/airport';
   styleUrls: ['./dashboard.css'],
 })
 export class Dashboard implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   private flightService = inject(FlightInstanceService);
   private bookingService = inject(BookingService);
   private airportService = inject(AirportService);
@@ -84,10 +85,12 @@ private loadDashboardData(): void {
       this.stats.heldBookings      = allBookings.filter(b => b.status === 'HELD').length;
       this.stats.cancelledBookings = allBookings.filter(b => b.status === 'CANCELLED').length;
       this.loading = false;
+      this.cdr.detectChanges();
     },
     error: (err) => {
       console.error('Dashboard error:', err);
       this.loading = false;
+      this.cdr.detectChanges();
     }
   });
 }

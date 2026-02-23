@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
@@ -22,6 +22,7 @@ export class BookingForm implements OnInit {
   private authService    = inject(AuthService);
   private router         = inject(Router);
   private route          = inject(ActivatedRoute);
+  private cdr            = inject(ChangeDetectorRef);
 
   // Flight selection
   flights: FlightInstance[] = [];
@@ -56,8 +57,12 @@ export class BookingForm implements OnInit {
       next: (data) => {
         this.flights = data.filter(f => f.status === 'SCHEDULED');
         this.loadingFlights = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.loadingFlights = false; },
+      error: () => { 
+        this.loadingFlights = false; 
+        this.cdr.detectChanges(); 
+      },
     });
   }
 

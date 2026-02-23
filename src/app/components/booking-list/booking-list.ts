@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookingService } from '../../services/booking/booking.service';
@@ -14,6 +14,7 @@ import { BookingStatus } from '../../models/booking-status';
 })
 export class BookingList implements OnInit {
   private bookingService = inject(BookingService);
+  private cdr = inject(ChangeDetectorRef);
 
   allBookings: BookingResponseDto[] = [];
   filteredBookings: BookingResponseDto[] = [];
@@ -42,11 +43,13 @@ export class BookingList implements OnInit {
         );
         this.applyFilters();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Failed to load bookings.';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }

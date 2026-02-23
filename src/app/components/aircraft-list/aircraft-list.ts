@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AircraftService } from '../../services/flight/aircraft.service';
@@ -13,6 +13,7 @@ import { Aircraft } from '../../models/aircraft';
 })
 export class AircraftList implements OnInit {
   private aircraftService = inject(AircraftService);
+  private cdr = inject(ChangeDetectorRef);
 
   allAircraft: Aircraft[] = [];
   filteredAircraft: Aircraft[] = [];
@@ -42,11 +43,13 @@ export class AircraftList implements OnInit {
         this.allAircraft = data;
         this.applyFilters();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Failed to load aircraft data.';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }

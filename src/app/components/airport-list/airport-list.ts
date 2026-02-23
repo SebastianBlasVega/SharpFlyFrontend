@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AirportService } from '../../services/flight/airport.service';
@@ -13,6 +13,7 @@ import { Airport } from '../../models/airport';
 })
 export class AirportList implements OnInit {
   private airportService = inject(AirportService);
+  private cdr = inject(ChangeDetectorRef);
 
   allAirports: Airport[] = [];
   filteredAirports: Airport[] = [];
@@ -40,11 +41,13 @@ export class AirportList implements OnInit {
         this.allAirports = data.sort((a, b) => a.iata.localeCompare(b.iata));
         this.applyFilters();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Failed to load airports.';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -15,6 +15,7 @@ import { FlightStatus } from '../../models/flight-status';
 })
 export class FlightList implements OnInit {
   private flightService = inject(FlightInstanceService);
+  private cdr = inject(ChangeDetectorRef);
 
   allFlights: FlightInstance[] = [];
   filteredFlights: FlightInstance[] = [];
@@ -48,11 +49,13 @@ export class FlightList implements OnInit {
         );
         this.applyFilters();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Failed to load flights.';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
