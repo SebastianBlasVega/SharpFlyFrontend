@@ -5,35 +5,35 @@
     <div class="page-header__left">
       <span class="material-symbols-outlined page-header__icon">departure_board</span>
       <div>
-        <h1 class="page-header__title">FLIGHT OPERATIONS</h1>
-        <p class="page-header__sub">Flight Instance Registry</p>
+        <h1 class="page-header__title">OPERACIÓN DE VUELOS</h1>
+        <p class="page-header__sub">Registro de Instancias de Vuelo</p>
       </div>
     </div>
     <button class="btn-primary" routerLink="/flights/new">
       <span class="material-symbols-outlined">add</span>
-      NEW FLIGHT
+      NUEVO VUELO
     </button>
   </div>
 
   <!-- Status Filter Tabs -->
   <div class="status-tabs">
     <button class="status-tab" [class.active]="filterStatus === 'ALL'" (click)="setStatusFilter('ALL')">
-      ALL <span class="tab-count">{{ countByStatus.ALL }}</span>
+      TODOS <span class="tab-count">{{ countByStatus.ALL }}</span>
     </button>
     <button class="status-tab chip--blue" [class.active]="filterStatus === 'SCHEDULED'" (click)="setStatusFilter('SCHEDULED')">
-      SCHEDULED <span class="tab-count">{{ countByStatus.SCHEDULED }}</span>
+      PROGRAMADOS <span class="tab-count">{{ countByStatus.SCHEDULED }}</span>
     </button>
     <button class="status-tab chip--amber" [class.active]="filterStatus === 'DELAYED'" (click)="setStatusFilter('DELAYED')">
-      DELAYED <span class="tab-count">{{ countByStatus.DELAYED }}</span>
+      RETRASADOS <span class="tab-count">{{ countByStatus.DELAYED }}</span>
     </button>
     <button class="status-tab chip--red" [class.active]="filterStatus === 'CANCELLED'" (click)="setStatusFilter('CANCELLED')">
-      CANCELLED <span class="tab-count">{{ countByStatus.CANCELLED }}</span>
+      CANCELADOS <span class="tab-count">{{ countByStatus.CANCELLED }}</span>
     </button>
     <button class="status-tab chip--green" [class.active]="filterStatus === 'DEPARTED'" (click)="setStatusFilter('DEPARTED')">
-      DEPARTED <span class="tab-count">{{ countByStatus.DEPARTED }}</span>
+      SALIDOS <span class="tab-count">{{ countByStatus.DEPARTED }}</span>
     </button>
     <button class="status-tab chip--green" [class.active]="filterStatus === 'ARRIVED'" (click)="setStatusFilter('ARRIVED')">
-      ARRIVED <span class="tab-count">{{ countByStatus.ARRIVED }}</span>
+      LLEGADOS <span class="tab-count">{{ countByStatus.ARRIVED }}</span>
     </button>
   </div>
 
@@ -42,7 +42,7 @@
     <span class="material-symbols-outlined">search</span>
     <input
       type="text"
-      placeholder="SEARCH BY FLIGHT NUMBER, ORIGIN OR DESTINATION..."
+      placeholder="BUSCAR POR NÚMERO DE VUELO, ORIGEN O DESTINO..."
       [(ngModel)]="searchQuery"
       (ngModelChange)="applyFilters()"
     />
@@ -51,14 +51,14 @@
   <!-- Loading -->
   <div class="loading-state" *ngIf="loading">
     <div class="spinner"></div>
-    <p>LOADING FLIGHT DATA...</p>
+    <p>CARGANDO DATOS DE VUELOS...</p>
   </div>
 
   <!-- Error -->
   <div class="error-state" *ngIf="error && !loading">
     <span class="material-symbols-outlined">error</span>
     <p>{{ error }}</p>
-    <button class="btn-primary" (click)="loadFlights()">RETRY</button>
+    <button class="btn-primary" (click)="loadFlights()">REINTENTAR</button>
   </div>
 
   <!-- Flight Cards Grid -->
@@ -97,12 +97,12 @@
       <!-- Times -->
       <div class="flight-card__times">
         <div class="time-block">
-          <span class="time-block__label">DEPARTURE</span>
+          <span class="time-block__label">SALIDA</span>
           <span class="time-block__time">{{ flight.departureAt | date:'HH:mm' }}</span>
           <span class="time-block__date">{{ flight.departureAt | date:'dd MMM' | uppercase }}</span>
         </div>
         <div class="time-block time-block--right">
-          <span class="time-block__label">ARRIVAL</span>
+          <span class="time-block__label">LLEGADA</span>
           <span class="time-block__time">{{ flight.arrivalAt | date:'HH:mm' }}</span>
           <span class="time-block__date">{{ flight.arrivalAt | date:'dd MMM' | uppercase }}</span>
         </div>
@@ -116,13 +116,13 @@
         </span>
         <span class="footer-meta">
           <span class="material-symbols-outlined">event_seat</span>
-          {{ flight.capacity }} SEATS
+          {{ flight.capacity }} ASIENTOS
         </span>
         <div class="flight-card__actions">
-          <button class="action-btn action-btn--status" (click)="openPatchStatus(flight)" title="Change Status">
+          <button class="action-btn action-btn--status" (click)="openPatchStatus(flight)" title="Cambiar Estado">
             <span class="material-symbols-outlined">swap_horiz</span>
           </button>
-          <button class="action-btn action-btn--delete" (click)="confirmDelete(flight.flightInstanceId!)" title="Delete">
+          <button class="action-btn action-btn--delete" (click)="confirmDelete(flight.flightInstanceId!)" title="Eliminar">
             <span class="material-symbols-outlined">delete</span>
           </button>
         </div>
@@ -132,7 +132,7 @@
     <!-- Empty -->
     <div class="empty-state" *ngIf="filteredFlights.length === 0">
       <span class="material-symbols-outlined">flight_land</span>
-      <p>NO FLIGHTS FOUND</p>
+      <p>NO SE ENCONTRARON VUELOS</p>
     </div>
   </div>
 
@@ -141,13 +141,13 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal__header">
         <span class="material-symbols-outlined">swap_horiz</span>
-        <h2 class="modal__title">UPDATE STATUS — {{ getFlightNumber(patchTarget) }}</h2>
+        <h2 class="modal__title">ACTUALIZAR ESTADO — {{ getFlightNumber(patchTarget) }}</h2>
         <button class="modal__close" (click)="closePatch()">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
       <div class="modal__body">
-        <p class="modal__label">SELECT NEW STATUS</p>
+        <p class="modal__label">SELECCIONAR NUEVO ESTADO</p>
         <div class="status-selector">
           <button
             *ngFor="let s of statuses"
@@ -160,10 +160,10 @@
         </div>
       </div>
       <div class="modal__footer">
-        <button class="btn-ghost" (click)="closePatch()">CANCEL</button>
+        <button class="btn-ghost" (click)="closePatch()">CANCELAR</button>
         <button class="btn-primary" (click)="saveStatus()" [disabled]="patching">
           <span class="material-symbols-outlined">check</span>
-          {{ patching ? 'SAVING...' : 'CONFIRM' }}
+          {{ patching ? 'GUARDANDO...' : 'CONFIRMAR' }}
         </button>
       </div>
     </div>
@@ -173,11 +173,11 @@
   <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
     <div class="confirm-dialog" (click)="$event.stopPropagation()">
       <span class="material-symbols-outlined">warning</span>
-      <p class="confirm-dialog__title">DELETE FLIGHT?</p>
-      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <p class="confirm-dialog__title">¿ELIMINAR VUELO?</p>
+      <p class="confirm-dialog__sub">Esta acción no se puede deshacer.</p>
       <div class="confirm-dialog__actions">
-        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
-        <button class="btn-danger" (click)="deleteFlight(deleteConfirmId!)">DELETE</button>
+        <button class="btn-ghost" (click)="cancelDelete()">CANCELAR</button>
+        <button class="btn-danger" (click)="deleteFlight(deleteConfirmId!)">ELIMINAR</button>
       </div>
     </div>
   </div>

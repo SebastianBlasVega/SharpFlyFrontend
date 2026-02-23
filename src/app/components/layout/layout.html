@@ -18,7 +18,7 @@
 
     <!-- Nav Items -->
     <nav class="sidebar__nav">
-      <p class="nav-section-label" *ngIf="!collapsed">OPERATIONS</p>
+      <p class="nav-section-label" *ngIf="!collapsed">OPERACIONES</p>
 
       <a
         *ngFor="let item of visibleItems"
@@ -37,9 +37,9 @@
       <!-- New Booking shortcut -->
       <div class="nav-divider" *ngIf="!collapsed"></div>
 
-      <a routerLink="/bookings/new" class="nav-item nav-item--cta" [title]="collapsed ? 'New Booking' : ''">
+      <a routerLink="/booking-form" class="nav-item nav-item--cta" [title]="collapsed ? 'New Booking' : ''">
         <span class="material-symbols-outlined nav-item__icon">add_circle</span>
-        <span class="nav-item__label" *ngIf="!collapsed">New Booking</span>
+        <span class="nav-item__label" *ngIf="!collapsed">Crear Reserva</span>
       </a>
     </nav>
 
@@ -61,7 +61,7 @@
 
       <button class="logout-btn" (click)="logout()" [title]="collapsed ? 'Logout' : ''">
         <span class="material-symbols-outlined">logout</span>
-        <span *ngIf="!collapsed">Logout</span>
+        <span *ngIf="!collapsed">Cerrar Sesión</span>
       </button>
     </div>
   </aside>

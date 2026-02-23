@@ -2,12 +2,9 @@
 
   <!-- Header -->
   <div class="page-header">
-    <button class="btn-back" routerLink="/bookings">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
     <div>
-      <h1 class="page-header__title">NEW BOOKING</h1>
-      <p class="page-header__sub">Create Reservation</p>
+      <h1 class="page-header__title">BOOKING</h1>
+      <p class="page-header__sub">Crear una nueva reserva</p>
     </div>
   </div>
 
@@ -18,7 +15,7 @@
         <span class="material-symbols-outlined" *ngIf="step > 1">check</span>
         <span *ngIf="step <= 1">01</span>
       </div>
-      <span class="step__label">SELECT FLIGHT</span>
+      <span class="step__label">SELECCIONE VUELO</span>
     </div>
     <div class="step__connector" [class.step__connector--done]="step > 1"></div>
     <div class="step" [class.step--active]="step === 2" [class.step--done]="step > 2">
@@ -26,12 +23,12 @@
         <span class="material-symbols-outlined" *ngIf="step > 2">check</span>
         <span *ngIf="step <= 2">02</span>
       </div>
-      <span class="step__label">PASSENGERS</span>
+      <span class="step__label">PASAJEROS</span>
     </div>
     <div class="step__connector" [class.step__connector--done]="step > 2"></div>
     <div class="step" [class.step--active]="step === 3">
       <div class="step__circle">03</div>
-      <span class="step__label">CONFIRM</span>
+      <span class="step__label">CONFIRMAR RESERVA</span>
     </div>
   </div>
 
@@ -39,18 +36,18 @@
   <div class="step-panel" *ngIf="step === 1">
     <div class="step-panel__header">
       <span class="material-symbols-outlined">departure_board</span>
-      <h2>SELECT A FLIGHT</h2>
+      <h2>SELECCIONE SU VUELO</h2>
     </div>
 
     <div class="search-box">
       <span class="material-symbols-outlined">search</span>
-      <input type="text" placeholder="SEARCH BY FLIGHT NUMBER OR IATA..."
+      <input type="text" placeholder="BUSQUE POR NÚMERO DE VUELO, ORIGEN O DESTINO"
         [(ngModel)]="flightSearch" />
     </div>
 
     <div class="flights-loading" *ngIf="loadingFlights">
       <div class="spinner"></div>
-      <p>LOADING AVAILABLE FLIGHTS...</p>
+      <p>CARGANDO VUELOS DISPONIBLES...</p>
     </div>
 
     <div class="flight-options" *ngIf="!loadingFlights">
@@ -86,13 +83,13 @@
 
       <div class="empty-state" *ngIf="filteredFlights.length === 0">
         <span class="material-symbols-outlined">flight_land</span>
-        <p>NO SCHEDULED FLIGHTS AVAILABLE</p>
+        <p>NO VUELOS PROGRAMADOS DISPONIBLES</p>
       </div>
     </div>
 
     <div class="step-footer">
       <button class="btn-primary" [disabled]="!selectedFlight" (click)="goToPassengers()">
-        CONTINUE TO PASSENGERS
+        CONTINUAR A PASAJEROS
         <span class="material-symbols-outlined">arrow_forward</span>
       </button>
     </div>
@@ -119,10 +116,10 @@
 
     <div class="step-panel__header">
       <span class="material-symbols-outlined">group</span>
-      <h2>PASSENGER DETAILS</h2>
+      <h2>DETALLES DE PASAJEROS</h2>
       <button class="btn-add-pax" (click)="addPassenger()">
         <span class="material-symbols-outlined">person_add</span>
-        ADD PASSENGER
+        AGREGAR PASAJERO
       </button>
     </div>
 
@@ -130,7 +127,7 @@
       <div class="passenger-form" *ngFor="let p of passengers; let i = index">
         <div class="passenger-form__header">
           <span class="material-symbols-outlined">person</span>
-          <span class="passenger-form__label">PASSENGER {{ i + 1 }}</span>
+          <span class="passenger-form__label">PASAJERO {{ i + 1 }}</span>
           <button class="btn-remove-pax" *ngIf="passengers.length > 1" (click)="removePassenger(i)">
             <span class="material-symbols-outlined">remove_circle</span>
           </button>
@@ -138,15 +135,15 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">FIRST NAME <span class="required">*</span></label>
+            <label class="form-label">NOMBRE <span class="required">*</span></label>
             <input class="form-input" type="text" placeholder="Juan" [(ngModel)]="p.firstName" />
           </div>
           <div class="form-group">
-            <label class="form-label">LAST NAME <span class="required">*</span></label>
+            <label class="form-label">APELLIDO <span class="required">*</span></label>
             <input class="form-input" type="text" placeholder="Pérez" [(ngModel)]="p.lastName" />
           </div>
           <div class="form-group">
-            <label class="form-label">DOC TYPE <span class="required">*</span></label>
+            <label class="form-label">IDENTIFICACION<span class="required">*</span></label>
             <div class="select-wrapper">
               <select class="form-input form-select" [(ngModel)]="p.docType">
                 <option *ngFor="let dt of docTypes" [value]="dt">{{ dt }}</option>
@@ -155,7 +152,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">DOC NUMBER <span class="required">*</span></label>
+            <label class="form-label">N. DOCUMENTO <span class="required">*</span></label>
             <input class="form-input form-input--mono" type="text" placeholder="12345678" [(ngModel)]="p.docNumber" />
           </div>
         </div>
@@ -165,7 +162,7 @@
     <!-- Hold Minutes -->
     <div class="hold-config">
       <span class="material-symbols-outlined">timer</span>
-      <label class="form-label">HOLD DURATION</label>
+      <label class="form-label">TIEMPO DE RESERVA</label>
       <div class="hold-options">
         <button class="hold-btn" *ngFor="let m of [15, 30, 60, 120]"
           [class.hold-btn--active]="holdMinutes === m"
@@ -178,10 +175,10 @@
     <div class="step-footer">
       <button class="btn-ghost" (click)="step = 1">
         <span class="material-symbols-outlined">arrow_back</span>
-        BACK
+        VOLVER
       </button>
       <button class="btn-primary" [disabled]="!passengersValid" (click)="goToConfirm()">
-        REVIEW BOOKING
+        CONTINUAR A CONFIRMAR
         <span class="material-symbols-outlined">arrow_forward</span>
       </button>
     </div>
@@ -191,12 +188,12 @@
   <div class="step-panel" *ngIf="step === 3 && selectedFlight">
     <div class="step-panel__header">
       <span class="material-symbols-outlined">checklist</span>
-      <h2>CONFIRM BOOKING</h2>
+      <h2>CONFIRMAR RESERVA</h2>
     </div>
 
     <!-- Flight Recap -->
     <div class="confirm-section">
-      <p class="confirm-section__label">FLIGHT</p>
+      <p class="confirm-section__label">VUELO</p>
       <div class="confirm-flight">
         <div class="confirm-flight__route">
           <div class="confirm-point">
@@ -225,7 +222,7 @@
 
     <!-- Passengers Recap -->
     <div class="confirm-section">
-      <p class="confirm-section__label">PASSENGERS ({{ passengers.length }})</p>
+      <p class="confirm-section__label">PASAJEROS ({{ passengers.length }})</p>
       <div class="confirm-pax-list">
         <div class="confirm-pax" *ngFor="let p of passengers; let i = index">
           <span class="confirm-pax__num">{{ i + 1 }}</span>
@@ -237,20 +234,19 @@
 
     <!-- Hold recap -->
     <div class="confirm-section">
-      <p class="confirm-section__label">HOLD EXPIRES IN</p>
-      <p class="confirm-hold">{{ holdMinutes }} MINUTES</p>
+      <p class="confirm-section__label">TIEMPO DE RESERVA</p>
+      <p class="confirm-hold">{{ holdMinutes }} MINUTOS</p>
     </div>
 
     <div class="step-footer">
       <button class="btn-ghost" (click)="step = 2">
         <span class="material-symbols-outlined">arrow_back</span>
-        BACK
+        VOLVER
       </button>
       <button class="btn-confirm" [disabled]="saving" (click)="submit()">
         <span class="material-symbols-outlined">{{ saving ? 'hourglass_empty' : 'check_circle' }}</span>
-        {{ saving ? 'CREATING BOOKING...' : 'CREATE BOOKING' }}
+        {{ saving ? 'CREANDO RESERVA...' : 'CREAR RESERVA' }}
       </button>
     </div>
   </div>
-
 </div>

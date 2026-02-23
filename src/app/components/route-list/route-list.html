@@ -5,13 +5,13 @@
     <div class="page-header__left">
       <span class="material-symbols-outlined page-header__icon">route</span>
       <div>
-        <h1 class="page-header__title">ROUTE REGISTRY</h1>
-        <p class="page-header__sub">Flight Route Management</p>
+        <h1 class="page-header__title">REGISTRO DE RUTAS</h1>
+        <p class="page-header__sub">Gestión de Rutas de Vuelo</p>
       </div>
     </div>
     <button class="btn-primary" (click)="openCreate()">
       <span class="material-symbols-outlined">add</span>
-      ADD ROUTE
+      AÑADIR RUTA
     </button>
   </div>
 
@@ -19,22 +19,22 @@
   <div class="stats-bar">
     <div class="stat-item">
       <span class="stat-item__value">{{ allRoutes.length }}</span>
-      <span class="stat-item__label">TOTAL ROUTES</span>
+      <span class="stat-item__label">TOTAL RUTAS</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
       <span class="stat-item__value stat-item__value--green">{{ activeCount }}</span>
-      <span class="stat-item__label">ACTIVE</span>
+      <span class="stat-item__label">ACTIVAS</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
       <span class="stat-item__value stat-item__value--red">{{ inactiveCount }}</span>
-      <span class="stat-item__label">INACTIVE</span>
+      <span class="stat-item__label">INACTIVAS</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
       <span class="stat-item__value stat-item__value--amber">{{ airports.length }}</span>
-      <span class="stat-item__label">AIRPORTS AVAILABLE</span>
+      <span class="stat-item__label">AEROPUERTOS DISPONIBLES</span>
     </div>
   </div>
 
@@ -42,26 +42,26 @@
   <div class="filters-bar">
     <div class="search-box">
       <span class="material-symbols-outlined">search</span>
-      <input type="text" placeholder="SEARCH BY IATA OR CITY..."
+      <input type="text" placeholder="BUSCAR POR IATA O CIUDAD..."
         [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" />
     </div>
     <div class="filter-tabs">
-      <button class="filter-tab" [class.filter-tab--active]="filterActive === undefined" (click)="setActiveFilter(undefined)">ALL</button>
-      <button class="filter-tab" [class.filter-tab--active]="filterActive === true"      (click)="setActiveFilter(true)">ACTIVE</button>
-      <button class="filter-tab" [class.filter-tab--active]="filterActive === false"     (click)="setActiveFilter(false)">INACTIVE</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === undefined" (click)="setActiveFilter(undefined)">TODAS</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === true"      (click)="setActiveFilter(true)">ACTIVAS</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterActive === false"     (click)="setActiveFilter(false)">INACTIVAS</button>
     </div>
   </div>
 
   <!-- Loading / Error -->
   <div class="loading-state" *ngIf="loading">
     <div class="spinner"></div>
-    <p>LOADING ROUTES...</p>
+    <p>CARGANDO RUTAS...</p>
   </div>
 
   <div class="error-state" *ngIf="error && !loading">
     <span class="material-symbols-outlined">error</span>
     <p>{{ error }}</p>
-    <button class="btn-primary" (click)="loadRoutes()">RETRY</button>
+    <button class="btn-primary" (click)="loadRoutes()">REINTENTAR</button>
   </div>
 
   <!-- Table -->
@@ -69,12 +69,12 @@
     <table class="route-table">
       <thead>
         <tr>
-          <th>ORIGIN</th>
+          <th>ORIGEN</th>
           <th></th>
-          <th>DESTINATION</th>
-          <th>STATUS</th>
-          <th>REGISTERED</th>
-          <th>ACTIONS</th>
+          <th>DESTINO</th>
+          <th>ESTADO</th>
+          <th>REGISTRADO</th>
+          <th>ACCIONES</th>
         </tr>
       </thead>
       <tbody>
@@ -119,7 +119,7 @@
             <span class="status-chip"
               [class.chip--green]="route.isActive"
               [class.chip--red]="!route.isActive">
-              {{ route.isActive ? 'ACTIVE' : 'INACTIVE' }}
+              {{ route.isActive ? 'ACTIVA' : 'INACTIVA' }}
             </span>
           </td>
 
@@ -129,10 +129,10 @@
           <!-- Actions -->
           <td>
             <div class="action-btns">
-              <button class="action-btn action-btn--edit" (click)="openEdit(route)" title="Edit">
+              <button class="action-btn action-btn--edit" (click)="openEdit(route)" title="Editar">
                 <span class="material-symbols-outlined">edit</span>
               </button>
-              <button class="action-btn action-btn--delete" (click)="confirmDelete(route.routeId!)" title="Delete">
+              <button class="action-btn action-btn--delete" (click)="confirmDelete(route.routeId!)" title="Eliminar">
                 <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
@@ -143,7 +143,7 @@
           <td colspan="6">
             <div class="empty-state">
               <span class="material-symbols-outlined">route</span>
-              <p>NO ROUTES FOUND</p>
+              <p>NO SE ENCONTRARON RUTAS</p>
             </div>
           </td>
         </tr>
@@ -155,11 +155,11 @@
   <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
     <div class="confirm-dialog" (click)="$event.stopPropagation()">
       <span class="material-symbols-outlined">warning</span>
-      <p class="confirm-dialog__title">DELETE ROUTE?</p>
-      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <p class="confirm-dialog__title">¿ELIMINAR RUTA?</p>
+      <p class="confirm-dialog__sub">Esta acción no se puede deshacer.</p>
       <div class="confirm-dialog__actions">
-        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
-        <button class="btn-danger" (click)="deleteRoute(deleteConfirmId!)">DELETE</button>
+        <button class="btn-ghost" (click)="cancelDelete()">CANCELAR</button>
+        <button class="btn-danger" (click)="deleteRoute(deleteConfirmId!)">ELIMINAR</button>
       </div>
     </div>
   </div>
@@ -169,7 +169,7 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal__header">
         <span class="material-symbols-outlined">{{ editMode ? 'edit' : 'add_circle' }}</span>
-        <h2 class="modal__title">{{ editMode ? 'EDIT ROUTE' : 'NEW ROUTE' }}</h2>
+        <h2 class="modal__title">{{ editMode ? 'EDITAR RUTA' : 'NUEVA RUTA' }}</h2>
         <button class="modal__close" (click)="closeModal()">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -189,10 +189,10 @@
 </div>
 
         <div class="form-group">
-          <label class="form-label">ORIGIN AIRPORT <span class="required">*</span></label>
+          <label class="form-label">AEROPUERTO DE ORIGEN <span class="required">*</span></label>
           <div class="select-wrapper">
             <select class="form-input form-select" [(ngModel)]="form.originAirportId">
-              <option [ngValue]="undefined" disabled>Select origin airport</option>
+              <option [ngValue]="undefined" disabled>Seleccione aeropuerto de origen</option>
               <option *ngFor="let a of airports" [ngValue]="a.airportId">
                 {{ a.iata }} — {{ a.city }}, {{ a.country }}
               </option>
@@ -202,10 +202,10 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">DESTINATION AIRPORT <span class="required">*</span></label>
+          <label class="form-label">AEROPUERTO DE DESTINO <span class="required">*</span></label>
           <div class="select-wrapper">
             <select class="form-input form-select" [(ngModel)]="form.destinationAirportId">
-              <option [ngValue]="undefined" disabled>Select destination airport</option>
+              <option [ngValue]="undefined" disabled>Seleccione aeropuerto de destino</option>
               <option *ngFor="let a of airports" [ngValue]="a.airportId"
                 [disabled]="a.airportId === form.originAirportId">
                 {{ a.iata }} — {{ a.city }}, {{ a.country }}
@@ -217,24 +217,24 @@
 
         <div class="same-airport-warning" *ngIf="sameAirport()">
           <span class="material-symbols-outlined">warning</span>
-          Origin and destination cannot be the same airport.
+          El origen y el destino no pueden ser el mismo aeropuerto.
         </div>
 
         <div class="form-group">
-          <label class="form-label">STATUS</label>
+          <label class="form-label">ESTADO</label>
           <div class="toggle-group">
-            <button class="toggle-btn" [class.toggle-btn--on]="form.isActive === true"  (click)="form.isActive = true">ACTIVE</button>
-            <button class="toggle-btn" [class.toggle-btn--off]="form.isActive === false" (click)="form.isActive = false">INACTIVE</button>
+            <button class="toggle-btn" [class.toggle-btn--on]="form.isActive === true"  (click)="form.isActive = true">ACTIVA</button>
+            <button class="toggle-btn" [class.toggle-btn--off]="form.isActive === false" (click)="form.isActive = false">INACTIVA</button>
           </div>
         </div>
       </div>
 
       <div class="modal__footer">
-        <button class="btn-ghost" (click)="closeModal()">CANCEL</button>
+        <button class="btn-ghost" (click)="closeModal()">CANCELAR</button>
         <button class="btn-primary" (click)="save()"
           [disabled]="saving || !form.originAirportId || !form.destinationAirportId || sameAirport()">
           <span class="material-symbols-outlined">{{ saving ? 'hourglass_empty' : 'check' }}</span>
-          {{ saving ? 'SAVING...' : 'SAVE' }}
+          {{ saving ? 'GUARDANDO...' : 'GUARDAR' }}
         </button>
       </div>
     </div>

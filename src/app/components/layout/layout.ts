@@ -27,13 +27,13 @@ export class Layout {
 
   readonly navItems: NavItem[] = [
     { label: 'Dashboard',  icon: 'dashboard',             route: '/dashboard' },
-    { label: 'Flights',    icon: 'departure_board',       route: '/flight-list' },
-    { label: 'Bookings',   icon: 'confirmation_number',   route: '/booking-list' },
-    { label: 'Airports',   icon: 'location_city',         route: '/airport-list',  adminOnly: true },
-    { label: 'Aircraft',   icon: 'airplanemode_active',   route: '/aircraft-list', adminOnly: true },
-    { label: 'Routes',     icon: 'compare_arrows',        route: '/route-list',    adminOnly: true },
-    { label: 'Templates',  icon: 'flight_takeoff',        route: '/flight-template-list', adminOnly: true },
-    { label: 'Users',      icon: 'people',                route: '/user-list',     adminOnly: true },
+    { label: 'Vuelos',    icon: 'departure_board',       route: '/flight-list' },
+    { label: 'Reservas',   icon: 'confirmation_number',   route: '/booking-list' },
+    { label: 'Aeropuertos',   icon: 'location_city',         route: '/airport-list',  adminOnly: true },
+    { label: 'Aeronaves',   icon: 'airplanemode_active',   route: '/aircraft-list', adminOnly: true },
+    { label: 'Rutas',     icon: 'compare_arrows',        route: '/route-list',    adminOnly: true },
+    { label: 'Plantillas de Vuelo',  icon: 'flight_takeoff',        route: '/flight-template-list', adminOnly: true },
+    { label: 'Usuarios',      icon: 'people',                route: '/user-list',     adminOnly: true },
   ];
 
   constructor() {
@@ -64,5 +64,4 @@ export class Layout {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
-  // cambiar de private a public
 }

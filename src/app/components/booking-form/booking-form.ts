@@ -37,7 +37,7 @@ export class BookingForm implements OnInit {
   holdMinutes = 30;
   passengers: PassengerDto[] = [];
 
-  readonly docTypes = ['DNI', 'PASSPORT', 'CE'];
+  readonly docTypes = ['DNI', 'PASAPORTE', 'CE'];
 
   ngOnInit(): void {
     this.loadFlights();

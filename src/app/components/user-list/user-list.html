@@ -5,13 +5,13 @@
     <div class="page-header__left">
       <span class="material-symbols-outlined page-header__icon">manage_accounts</span>
       <div>
-        <h1 class="page-header__title">USER MANAGEMENT</h1>
-        <p class="page-header__sub">System Access Control</p>
+        <h1 class="page-header__title">GESTIÓN DE USUARIOS</h1>
+        <p class="page-header__sub">Control de Acceso al Sistema</p>
       </div>
     </div>
     <button class="btn-primary" (click)="openCreate()">
       <span class="material-symbols-outlined">person_add</span>
-      NEW USER
+      NUEVO USUARIO
     </button>
   </div>
 
@@ -19,17 +19,17 @@
   <div class="stats-bar">
     <div class="stat-item">
       <span class="stat-item__value">{{ allUsers.length }}</span>
-      <span class="stat-item__label">TOTAL USERS</span>
+      <span class="stat-item__label">TOTAL USUARIOS</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
       <span class="stat-item__value stat-item__value--amber">{{ adminCount }}</span>
-      <span class="stat-item__label">ADMINISTRATORS</span>
+      <span class="stat-item__label">ADMINISTRADORES</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
       <span class="stat-item__value stat-item__value--blue">{{ userCount }}</span>
-      <span class="stat-item__label">STAFF</span>
+      <span class="stat-item__label">PERSONAL</span>
     </div>
   </div>
 
@@ -37,25 +37,25 @@
   <div class="filters-bar">
     <div class="search-box">
       <span class="material-symbols-outlined">search</span>
-      <input type="text" placeholder="SEARCH BY USERNAME..."
+      <input type="text" placeholder="BUSCAR POR NOMBRE DE USUARIO..."
         [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" />
     </div>
     <div class="filter-tabs">
-      <button class="filter-tab" [class.filter-tab--active]="filterRole === 'ALL'"   (click)="setRoleFilter('ALL')">ALL</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterRole === 'ALL'"   (click)="setRoleFilter('ALL')">TODOS</button>
       <button class="filter-tab" [class.filter-tab--active]="filterRole === 'ADMIN'" (click)="setRoleFilter('ADMIN')">ADMIN</button>
-      <button class="filter-tab" [class.filter-tab--active]="filterRole === 'USER'"  (click)="setRoleFilter('USER')">STAFF</button>
+      <button class="filter-tab" [class.filter-tab--active]="filterRole === 'USER'"  (click)="setRoleFilter('USER')">PERSONAL</button>
     </div>
   </div>
 
   <!-- Loading / Error -->
   <div class="loading-state" *ngIf="loading">
     <div class="spinner"></div>
-    <p>LOADING USERS...</p>
+    <p>CARGANDO USUARIOS...</p>
   </div>
   <div class="error-state" *ngIf="error && !loading">
     <span class="material-symbols-outlined">error</span>
     <p>{{ error }}</p>
-    <button class="btn-primary" (click)="loadUsers()">RETRY</button>
+    <button class="btn-primary" (click)="loadUsers()">REINTENTAR</button>
   </div>
 
   <!-- Table -->
@@ -64,9 +64,9 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>USERNAME</th>
-          <th>ROLE</th>
-          <th>ACTIONS</th>
+          <th>USUARIO</th>
+          <th>ROL</th>
+          <th>ACCIONES</th>
         </tr>
       </thead>
       <tbody>
@@ -84,7 +84,7 @@
               </div>
               <div>
                 <span class="username">{{ user.username }}</span>
-                <span class="self-badge" *ngIf="isSelf(user)">YOU</span>
+                <span class="self-badge" *ngIf="isSelf(user)">TÚ</span>
               </div>
             </div>
           </td>
@@ -94,20 +94,20 @@
               <span class="material-symbols-outlined">
                 {{ user.role === 'ADMIN' ? 'shield' : 'badge' }}
               </span>
-              {{ user.role === 'ADMIN' ? 'Administrator' : 'Staff' }}
+              {{ user.role === 'ADMIN' ? 'Administrador' : 'Personal' }}
             </span>
           </td>
 
           <td>
             <div class="action-btns">
               <button class="action-btn action-btn--edit"
-                (click)="openEdit(user)" title="Edit">
+                (click)="openEdit(user)" title="Editar">
                 <span class="material-symbols-outlined">edit</span>
               </button>
               <button class="action-btn action-btn--delete"
                 (click)="confirmDelete(user.id!)"
                 [disabled]="isSelf(user)"
-                [title]="isSelf(user) ? 'Cannot delete your own account' : 'Delete'">
+                [title]="isSelf(user) ? 'No puedes eliminar tu propia cuenta' : 'Eliminar'">
                 <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
@@ -118,7 +118,7 @@
           <td colspan="4">
             <div class="empty-state">
               <span class="material-symbols-outlined">group_off</span>
-              <p>NO USERS FOUND</p>
+              <p>NO SE ENCONTRARON USUARIOS</p>
             </div>
           </td>
         </tr>
@@ -130,11 +130,11 @@
   <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
     <div class="confirm-dialog" (click)="$event.stopPropagation()">
       <span class="material-symbols-outlined">warning</span>
-      <p class="confirm-dialog__title">DELETE USER?</p>
-      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <p class="confirm-dialog__title">¿ELIMINAR USUARIO?</p>
+      <p class="confirm-dialog__sub">Esta acción no se puede deshacer.</p>
       <div class="confirm-dialog__actions">
-        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
-        <button class="btn-danger" (click)="deleteUser(deleteConfirmId!)">DELETE</button>
+        <button class="btn-ghost" (click)="cancelDelete()">CANCELAR</button>
+        <button class="btn-danger" (click)="deleteUser(deleteConfirmId!)">ELIMINAR</button>
       </div>
     </div>
   </div>
@@ -145,7 +145,7 @@
 
       <div class="modal__header">
         <span class="material-symbols-outlined">{{ editMode ? 'manage_accounts' : 'person_add' }}</span>
-        <h2 class="modal__title">{{ editMode ? 'EDIT USER — ' + form.username : 'NEW USER' }}</h2>
+        <h2 class="modal__title">{{ editMode ? 'EDITAR USUARIO — ' + form.username : 'NUEVO USUARIO' }}</h2>
         <button class="modal__close" (click)="closeModal()">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -155,12 +155,12 @@
 
         <!-- Username -->
         <div class="form-group">
-          <label class="form-label">USERNAME <span class="required">*</span></label>
+          <label class="form-label">NOMBRE DE USUARIO <span class="required">*</span></label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">person</span>
             <input class="form-input form-input--icon form-input--mono"
               type="text"
-              placeholder="e.g. carlos.mendoza"
+              placeholder="ej. carlos.mendoza"
               [(ngModel)]="form.username"
               (ngModelChange)="onUsernameInput()"
               [disabled]="editMode" />
@@ -175,13 +175,13 @@
             </span>
           </div>
           <span class="form-error" *ngIf="usernameExists && !editMode">
-            Username already exists.
+            El nombre de usuario ya existe.
           </span>
         </div>
 
         <!-- Role Selector -->
         <div class="form-group">
-          <label class="form-label">ROLE <span class="required">*</span></label>
+          <label class="form-label">ROL <span class="required">*</span></label>
           <div class="role-selector">
 
             <div class="role-option"
@@ -191,8 +191,8 @@
                 <span class="material-symbols-outlined">badge</span>
               </div>
               <div class="role-option__info">
-                <span class="role-option__name">Staff</span>
-                <span class="role-option__desc">Can manage flights and bookings</span>
+                <span class="role-option__name">Personal</span>
+                <span class="role-option__desc">Puede gestionar vuelos y reservas</span>
               </div>
               <div class="role-option__radio">
                 <div class="radio-dot" [class.radio-dot--on]="form.role === 'USER'"></div>
@@ -206,8 +206,8 @@
                 <span class="material-symbols-outlined">shield</span>
               </div>
               <div class="role-option__info">
-                <span class="role-option__name">Administrator</span>
-                <span class="role-option__desc">Full system access including airports, aircraft and users</span>
+                <span class="role-option__name">Administrador</span>
+                <span class="role-option__desc">Acceso completo incluyendo aeropuertos, aeronaves y usuarios</span>
               </div>
               <div class="role-option__radio">
                 <div class="radio-dot radio-dot--amber" [class.radio-dot--on]="form.role === 'ADMIN'"></div>
@@ -219,58 +219,58 @@
 
         <!-- Divider -->
         <div class="section-divider">
-          <span>{{ editMode ? 'CHANGE PASSWORD (OPTIONAL)' : 'PASSWORD' }}</span>
+          <span>{{ editMode ? 'CAMBIAR CONTRASEÑA (OPCIONAL)' : 'CONTRASEÑA' }}</span>
         </div>
 
         <!-- Password -->
         <div class="form-group">
           <label class="form-label">
-            PASSWORD
+            CONTRASEÑA
             <span class="required" *ngIf="!editMode">*</span>
-            <span class="form-hint-inline" *ngIf="editMode">Leave blank to keep current</span>
+            <span class="form-hint-inline" *ngIf="editMode">Dejar en blanco para mantener la actual</span>
           </label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">lock</span>
             <input class="form-input form-input--icon"
               [type]="showPassword ? 'text' : 'password'"
-              placeholder="{{ editMode ? '••••••••' : 'Min. 6 characters' }}"
+              placeholder="{{ editMode ? '••••••••' : 'Mín. 6 caracteres' }}"
               [(ngModel)]="form.password" />
             <button class="toggle-password" type="button" (click)="showPassword = !showPassword">
               <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
             </button>
           </div>
           <span class="form-error" *ngIf="!editMode && form.password && form.password.length < 6">
-            Password must be at least 6 characters.
+            La contraseña debe tener al menos 6 caracteres.
           </span>
         </div>
 
         <!-- Confirm Password -->
         <div class="form-group">
-          <label class="form-label">CONFIRM PASSWORD
+          <label class="form-label">CONFIRMAR CONTRASEÑA
             <span class="required" *ngIf="!editMode">*</span>
           </label>
           <div class="input-wrapper">
             <span class="material-symbols-outlined input-icon">lock_reset</span>
             <input class="form-input form-input--icon"
               [type]="showConfirmPassword ? 'text' : 'password'"
-              placeholder="Repeat password"
+              placeholder="Repetir contraseña"
               [(ngModel)]="form.confirmPassword" />
             <button class="toggle-password" type="button" (click)="showConfirmPassword = !showConfirmPassword">
               <span class="material-symbols-outlined">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
             </button>
           </div>
           <span class="form-error" *ngIf="passwordMismatch">
-            Passwords do not match.
+            Las contraseñas no coinciden.
           </span>
         </div>
 
       </div>
 
       <div class="modal__footer">
-        <button class="btn-ghost" (click)="closeModal()">CANCEL</button>
+        <button class="btn-ghost" (click)="closeModal()">CANCELAR</button>
         <button class="btn-primary" (click)="save()" [disabled]="!formValid || saving">
           <span class="material-symbols-outlined">{{ saving ? 'hourglass_empty' : (editMode ? 'save' : 'person_add') }}</span>
-          {{ saving ? 'SAVING...' : (editMode ? 'SAVE CHANGES' : 'CREATE USER') }}
+          {{ saving ? 'GUARDANDO...' : (editMode ? 'GUARDAR CAMBIOS' : 'CREAR USUARIO') }}
         </button>
       </div>
 

@@ -5,8 +5,8 @@
     <div class="page-header__left">
       <span class="material-symbols-outlined page-header__icon">confirmation_number</span>
       <div>
-        <h1 class="page-header__title">BOOKING REGISTRY</h1>
-        <p class="page-header__sub">Reservations Management</p>
+        <h1 class="page-header__title">REGISTRO DE RESERVAS</h1>
+        <p class="page-header__sub">Gestión de Reservas</p>
       </div>
     </div>
   </div>
@@ -14,19 +14,19 @@
   <!-- Status Tabs -->
   <div class="status-tabs">
     <button class="status-tab" [class.active]="filterStatus === 'ALL'" (click)="setStatusFilter('ALL')">
-      ALL <span class="tab-count">{{ countByStatus.ALL }}</span>
+      TODOS <span class="tab-count">{{ countByStatus.ALL }}</span>
     </button>
     <button class="status-tab chip--green" [class.active]="filterStatus === 'CONFIRMED'" (click)="setStatusFilter('CONFIRMED')">
-      CONFIRMED <span class="tab-count">{{ countByStatus.CONFIRMED }}</span>
+      CONFIRMADOS <span class="tab-count">{{ countByStatus.CONFIRMED }}</span>
     </button>
     <button class="status-tab chip--amber" [class.active]="filterStatus === 'HELD'" (click)="setStatusFilter('HELD')">
-      HELD <span class="tab-count">{{ countByStatus.HELD }}</span>
+      EN ESPERA <span class="tab-count">{{ countByStatus.HELD }}</span>
     </button>
     <button class="status-tab chip--red" [class.active]="filterStatus === 'CANCELLED'" (click)="setStatusFilter('CANCELLED')">
-      CANCELLED <span class="tab-count">{{ countByStatus.CANCELLED }}</span>
+      CANCELADOS <span class="tab-count">{{ countByStatus.CANCELLED }}</span>
     </button>
     <button class="status-tab chip--red" [class.active]="filterStatus === 'EXPIRED'" (click)="setStatusFilter('EXPIRED')">
-      EXPIRED <span class="tab-count">{{ countByStatus.EXPIRED }}</span>
+      EXPIRADOS <span class="tab-count">{{ countByStatus.EXPIRED }}</span>
     </button>
   </div>
 
@@ -35,7 +35,7 @@
     <span class="material-symbols-outlined">search</span>
     <input
       type="text"
-      placeholder="SEARCH BY PNR..."
+      placeholder="BUSCAR POR PNR..."
       [(ngModel)]="searchQuery"
       (ngModelChange)="applyFilters()"
     />
@@ -44,13 +44,13 @@
   <!-- Loading / Error -->
   <div class="loading-state" *ngIf="loading">
     <div class="spinner"></div>
-    <p>LOADING BOOKINGS...</p>
+    <p>CARGANDO RESERVAS...</p>
   </div>
 
   <div class="error-state" *ngIf="error && !loading">
     <span class="material-symbols-outlined">error</span>
     <p>{{ error }}</p>
-    <button class="btn-primary" (click)="loadBookings()">RETRY</button>
+    <button class="btn-primary" (click)="loadBookings()">REINTENTAR</button>
   </div>
 
   <!-- Main Layout -->
@@ -62,12 +62,12 @@
         <thead>
           <tr>
             <th>PNR</th>
-            <th>FLIGHT ID</th>
-            <th>STATUS</th>
-            <th>PAX</th>
-            <th>HOLD EXPIRES</th>
-            <th>CREATED</th>
-            <th>ACTIONS</th>
+            <th>ID VUELO</th>
+            <th>ESTADO</th>
+            <th>PASAJEROS</th>
+            <th>VENCE RESERVA</th>
+            <th>CREADO</th>
+            <th>ACCIONES</th>
           </tr>
         </thead>
         <tbody>
@@ -103,18 +103,18 @@
                 <button class="action-btn action-btn--confirm"
                   *ngIf="booking.status === 'HELD'"
                   (click)="confirmBooking(booking.pnr)"
-                  title="Confirm">
+                  title="Confirmar">
                   <span class="material-symbols-outlined">check_circle</span>
                 </button>
                 <button class="action-btn action-btn--cancel"
                   *ngIf="booking.status === 'HELD' || booking.status === 'CONFIRMED'"
                   (click)="cancelBooking(booking.pnr)"
-                  title="Cancel">
+                  title="Cancelar">
                   <span class="material-symbols-outlined">cancel</span>
                 </button>
                 <button class="action-btn action-btn--delete"
                   (click)="confirmDelete(booking.bookingId)"
-                  title="Delete">
+                  title="Eliminar">
                   <span class="material-symbols-outlined">delete</span>
                 </button>
               </div>
@@ -125,7 +125,7 @@
             <td colspan="7">
               <div class="empty-state">
                 <span class="material-symbols-outlined">confirmation_number</span>
-                <p>NO BOOKINGS FOUND</p>
+                <p>NO SE ENCONTRARON RESERVAS</p>
               </div>
             </td>
           </tr>
@@ -137,7 +137,7 @@
     <div class="detail-panel" *ngIf="selectedBooking">
       <div class="detail-panel__header">
         <span class="material-symbols-outlined">receipt_long</span>
-        <h3 class="detail-panel__title">BOOKING DETAIL</h3>
+        <h3 class="detail-panel__title">DETALLE DE RESERVA</h3>
         <button class="modal__close" (click)="selectedBooking = null">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -155,23 +155,23 @@
         <!-- Info Grid -->
         <div class="detail-grid">
           <div class="detail-field">
-            <span class="detail-field__label">FLIGHT ID</span>
+            <span class="detail-field__label">ID VUELO</span>
             <span class="detail-field__value">FLT-{{ selectedBooking.flightInstanceId }}</span>
           </div>
           <div class="detail-field">
-            <span class="detail-field__label">PASSENGERS</span>
+            <span class="detail-field__label">PASAJEROS</span>
             <span class="detail-field__value">{{ selectedBooking.passengerCount }} PAX</span>
           </div>
           <div class="detail-field">
-            <span class="detail-field__label">USER ID</span>
+            <span class="detail-field__label">ID USUARIO</span>
             <span class="detail-field__value">{{ selectedBooking.createdByUserId ?? '—' }}</span>
           </div>
           <div class="detail-field">
-            <span class="detail-field__label">CREATED</span>
+            <span class="detail-field__label">CREADO</span>
             <span class="detail-field__value">{{ selectedBooking.createdAt | date:'dd MMM yyyy HH:mm' | uppercase }}</span>
           </div>
           <div class="detail-field" *ngIf="selectedBooking.holdExpiresAt">
-            <span class="detail-field__label">HOLD EXPIRES</span>
+            <span class="detail-field__label">VENCE RESERVA</span>
             <span class="detail-field__value" [class.expired]="isHoldExpired(selectedBooking)">
               {{ selectedBooking.holdExpiresAt | date:'dd MMM yyyy HH:mm' | uppercase }}
             </span>
@@ -180,7 +180,7 @@
 
         <!-- Passengers -->
         <div class="passengers-section" *ngIf="selectedBooking.passengers?.length">
-          <p class="section-label">PASSENGERS</p>
+          <p class="section-label">PASAJEROS</p>
           <div class="passenger-card" *ngFor="let p of selectedBooking.passengers">
             <span class="material-symbols-outlined passenger-card__icon">person</span>
             <div class="passenger-card__info">
@@ -196,17 +196,17 @@
             *ngIf="selectedBooking.status === 'HELD'"
             (click)="confirmBooking(selectedBooking.pnr)">
             <span class="material-symbols-outlined">check_circle</span>
-            CONFIRM BOOKING
+            CONFIRMAR RESERVA
           </button>
           <button class="btn-cancel-booking"
             *ngIf="selectedBooking.status === 'HELD' || selectedBooking.status === 'CONFIRMED'"
             (click)="cancelBooking(selectedBooking.pnr)">
             <span class="material-symbols-outlined">cancel</span>
-            CANCEL BOOKING
+            CANCELAR RESERVA
           </button>
           <button class="btn-danger-sm" (click)="confirmDelete(selectedBooking.bookingId)">
             <span class="material-symbols-outlined">delete</span>
-            DELETE
+            ELIMINAR
           </button>
         </div>
       </div>
@@ -217,11 +217,11 @@
   <div class="overlay" *ngIf="deleteConfirmId !== null" (click)="cancelDelete()">
     <div class="confirm-dialog" (click)="$event.stopPropagation()">
       <span class="material-symbols-outlined">warning</span>
-      <p class="confirm-dialog__title">DELETE BOOKING?</p>
-      <p class="confirm-dialog__sub">This action cannot be undone.</p>
+      <p class="confirm-dialog__title">¿ELIMINAR RESERVA?</p>
+      <p class="confirm-dialog__sub">Esta acción no se puede deshacer.</p>
       <div class="confirm-dialog__actions">
-        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
-        <button class="btn-danger" (click)="deleteBooking(deleteConfirmId!)">DELETE</button>
+        <button class="btn-ghost" (click)="cancelDelete()">CANCELAR</button>
+        <button class="btn-danger" (click)="deleteBooking(deleteConfirmId!)">ELIMINAR</button>
       </div>
     </div>
   </div>

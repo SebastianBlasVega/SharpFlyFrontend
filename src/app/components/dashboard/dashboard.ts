@@ -120,9 +120,4 @@ private loadDashboardData(): void {
   getFlightNumber(flight: FlightInstance): string {
     return flight.flightTemplate?.flightNumber ?? '------';
   }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
 }
