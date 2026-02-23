@@ -1,3 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
+/* En src/styles.css o src/styles.scss */
+@import 'material-symbols/outlined.css';
