@@ -179,7 +179,7 @@
         </div>
 
         <!-- Passengers -->
-        <div class="passengers-section" *ngIf="selectedBooking.passengers?.length">
+        <div class="passengers-section" *ngIf="selectedBooking.passengers.length">
           <p class="section-label">PASAJEROS</p>
           <div class="passenger-card" *ngFor="let p of selectedBooking.passengers">
             <span class="material-symbols-outlined passenger-card__icon">person</span>

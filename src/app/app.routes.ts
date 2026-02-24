@@ -11,6 +11,7 @@ import { authGuard } from './security/auth.guard';
 import { RouteList } from './components/route-list/route-list';
 import { FlightTemplateList } from './components/flight-template-list/flight-template-list';
 import { UserList } from './components/user-list/user-list';
+import { FlightForm } from './components/flight-form/flight-form';
 
 export const routes: Routes = [
   // Ruta pública
@@ -25,6 +26,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard',     component: Dashboard },
       { path: 'flight-list',   component: FlightList },
+      {path: 'flight-form', component:FlightForm},
       { path: 'booking-list',  component: BookingList },
       { path: 'booking-form',  component: BookingForm },
       { path: 'airport-list',  component: AirportList },

@@ -88,7 +88,7 @@ export class BookingForm implements OnInit {
 
   syncPassengers(): void {
     const count = this.passengers.length;
-    const needed = 1; // Empezar con 1 pasajero mínimo
+    const needed = 1;
     if (count < needed) {
       for (let i = count; i < needed; i++) {
         this.passengers.push(this.emptyPassenger());
@@ -116,8 +116,9 @@ export class BookingForm implements OnInit {
     this.saving = true;
 
     const userId = this.getUserId();
-    const holdExpiry = new Date(Date.now() + this.holdMinutes * 60000).toISOString();
-
+    const holdExpiry = new Date(Date.now() + this.holdMinutes * 60000)
+    .toISOString()
+    .slice(0, 19);
     const request: BookingRequestDto = {
       flightInstanceId: this.selectedFlight.flightInstanceId,
       passengerCount: this.passengers.length,
@@ -128,7 +129,7 @@ export class BookingForm implements OnInit {
 
     this.bookingService.createBooking(request).subscribe({
       next: (booking) => {
-        this.router.navigate(['/bookings'], { queryParams: { pnr: booking.pnr } });
+        this.router.navigate(['/booking-list'], { queryParams: { pnr: booking.pnr } });
       },
       error: (err) => {
         console.error(err);
@@ -156,11 +157,11 @@ export class BookingForm implements OnInit {
   }
 
   private getUserId(): number | null {
-    const token = this.authService.getToken();
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.id ?? payload.sub ?? null;
-    } catch { return null; }
-  }
+  const token = this.authService.getToken();
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.uid ?? null; 
+  } catch { return null; }
+}
 }

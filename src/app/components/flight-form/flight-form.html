@@ -1,0 +1,339 @@
+<div class="flight-form-page">
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn-back" routerLink="/flight-list">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <div>
+      <h1 class="page-header__title">NUEVO VUELO</h1>
+      <p class="page-header__sub">Programar una instancia de vuelo</p>
+    </div>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="steps">
+    <div class="step" [class.step--active]="step === 1" [class.step--done]="step > 1">
+      <div class="step__circle">
+        <span class="material-symbols-outlined" *ngIf="step > 1">check</span>
+        <span *ngIf="step <= 1">01</span>
+      </div>
+      <div class="step__text">
+        <span class="step__label">PLANTILLA</span>
+        <span class="step__sub">Seleccionar plantilla de vuelo</span>
+      </div>
+    </div>
+
+    <div class="step__connector" [class.step__connector--done]="step > 1"></div>
+
+    <div class="step" [class.step--active]="step === 2" [class.step--done]="step > 2">
+      <div class="step__circle">
+        <span class="material-symbols-outlined" *ngIf="step > 2">check</span>
+        <span *ngIf="step <= 2">02</span>
+      </div>
+      <div class="step__text">
+        <span class="step__label">PROGRAMACIÓN</span>
+        <span class="step__sub">Fecha, hora y capacidad</span>
+      </div>
+    </div>
+
+    <div class="step__connector" [class.step__connector--done]="step > 2"></div>
+
+    <div class="step" [class.step--active]="step === 3">
+      <div class="step__circle">03</div>
+      <div class="step__text">
+        <span class="step__label">CONFIRMAR</span>
+        <span class="step__sub">Revisar y crear</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 1 ===================== -->
+  <div class="step-panel" *ngIf="step === 1">
+    <div class="step-panel__header">
+      <span class="material-symbols-outlined">content_copy</span>
+      <h2>SELECCIONAR PLANTILLA DE VUELO</h2>
+    </div>
+
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input
+        type="text"
+        placeholder="BUSCAR POR NÚMERO DE VUELO, IATA O AERONAVE..."
+        [(ngModel)]="templateSearch"
+        (ngModelChange)="filterTemplates()"
+      />
+    </div>
+
+    <div class="loading-state" *ngIf="loadingTemplates">
+      <div class="spinner"></div>
+      <p>CARGANDO PLANTILLAS...</p>
+    </div>
+
+    <div class="template-grid" *ngIf="!loadingTemplates">
+      <div
+        class="template-card"
+        *ngFor="let t of filteredTemplates"
+        [class.template-card--selected]="selectedTemplate?.flightTemplateId === t.flightTemplateId"
+        (click)="selectTemplate(t)"
+      >
+        <div class="template-card__radio">
+          <div
+            class="radio-dot"
+            [class.radio-dot--on]="selectedTemplate?.flightTemplateId === t.flightTemplateId"
+          ></div>
+        </div>
+
+        <div class="template-card__number">{{ t.flightNumber }}</div>
+
+        <div class="template-card__route">
+          <div class="route-point">
+            <span class="route-iata">{{ getOrigin(t) }}</span>
+            <span class="route-city">{{ getOriginCity(t) }}</span>
+          </div>
+          <div class="route-connector">
+            <span class="connector-line"></span>
+            <span class="material-symbols-outlined">flight</span>
+            <span class="connector-line"></span>
+          </div>
+          <div class="route-point route-point--right">
+            <span class="route-iata route-iata--dest">{{ getDestination(t) }}</span>
+            <span class="route-city">{{ getDestCity(t) }}</span>
+          </div>
+        </div>
+
+        <div class="template-card__meta">
+          <span class="meta-item">
+            <span class="material-symbols-outlined">schedule</span>
+            {{ formatDuration(t.defaultDurationMinutes ?? 0) }}
+          </span>
+          <span class="meta-item">
+            <span class="material-symbols-outlined">airplanemode_active</span>
+            {{ t.aircraft?.code }}
+          </span>
+          <span class="meta-item">
+            <span class="material-symbols-outlined">event_seat</span>
+            {{ t.aircraft?.seatCapacity }} asientos
+          </span>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="filteredTemplates.length === 0">
+        <span class="material-symbols-outlined">content_copy</span>
+        <p>NO SE ENCONTRARON PLANTILLAS ACTIVAS</p>
+      </div>
+    </div>
+
+    <div class="step-footer">
+      <div class="selected-info" *ngIf="selectedTemplate">
+        <span class="material-symbols-outlined">check_circle</span>
+        {{ selectedTemplate.flightNumber }} seleccionada
+      </div>
+      <button class="btn-primary" [disabled]="!selectedTemplate" (click)="goToSchedule()">
+        CONTINUAR A PROGRAMACIÓN
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 2 ===================== -->
+  <div class="step-panel" *ngIf="step === 2">
+    <div class="template-summary" *ngIf="selectedTemplate">
+      <div class="template-summary__route">
+        <span class="summary-iata">{{ getOrigin(selectedTemplate) }}</span>
+        <span class="material-symbols-outlined summary-plane">flight</span>
+        <span class="summary-iata summary-iata--dest">{{ getDestination(selectedTemplate) }}</span>
+      </div>
+      <div class="template-summary__meta">
+        <span>{{ selectedTemplate.flightNumber }}</span>
+        <span>·</span>
+        <span>{{ selectedTemplate.aircraft?.model }}</span>
+        <span>·</span>
+        <span>{{ formatDuration(selectedTemplate.defaultDurationMinutes ?? 0) }}</span>
+      </div>
+    </div>
+
+    <div class="step-panel__header">
+      <span class="material-symbols-outlined">calendar_month</span>
+      <h2>PROGRAMACIÓN Y CAPACIDAD</h2>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">FECHA DE SALIDA <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined input-icon">calendar_today</span>
+          <input
+            class="form-input form-input--icon form-input--mono"
+            type="date"
+            [(ngModel)]="departureDate"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">HORA DE SALIDA <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined input-icon">schedule</span>
+          <input
+            class="form-input form-input--icon form-input--mono"
+            type="time"
+            [(ngModel)]="departureTime"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          CAPACIDAD <span class="required">*</span>
+          <span class="form-hint-inline" *ngIf="selectedTemplate">
+            Máx {{ selectedTemplate.aircraft?.seatCapacity }}
+          </span>
+        </label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined input-icon">event_seat</span>
+          <input
+            class="form-input form-input--icon form-input--mono"
+            type="number"
+            min="1"
+            [max]="selectedTemplate?.aircraft?.seatCapacity ?? 999"
+            [(ngModel)]="capacity"
+            placeholder="{{ selectedTemplate?.aircraft?.seatCapacity }}"
+          />
+        </div>
+        <span
+          class="form-error"
+          *ngIf="
+            capacity &&
+            selectedTemplate &&
+            capacity > (selectedTemplate.aircraft?.seatCapacity ?? 0)
+          "
+        >
+          Supera la capacidad de la aeronave de
+          {{ selectedTemplate.aircraft?.seatCapacity }} asientos.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ESTADO INICIAL <span class="required">*</span></label>
+        <div class="status-selector">
+          <button
+            *ngFor="let s of statuses"
+            class="status-option"
+            [ngClass]="statusClass(s)"
+            [class.status-option--active]="status === s"
+            (click)="status = s"
+          >
+            {{ s }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrival-preview" *ngIf="arrivalDateTime">
+      <div class="arrival-preview__row">
+        <div class="arrival-block">
+          <span class="arrival-block__label">SALIDA</span>
+          <span class="arrival-block__time"
+            >{{ departureDate | date: 'dd MMM yyyy' | uppercase }} {{ departureTime }}</span
+          >
+        </div>
+        <div class="arrival-arrow">
+          <span class="arrival-arrow__line"></span>
+          <span class="material-symbols-outlined">flight</span>
+          <span class="arrival-arrow__line"></span>
+          <span class="arrival-duration">{{
+            formatDuration(selectedTemplate?.defaultDurationMinutes ?? 0)
+          }}</span>
+        </div>
+        <div class="arrival-block arrival-block--right">
+          <span class="arrival-block__label">LLEGADA (AUTO)</span>
+          <span class="arrival-block__time"
+            >{{ arrivalDateTime | date: 'dd MMM yyyy' | uppercase }}
+            {{ arrivalDateTime | date: 'HH:mm' }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="step-footer">
+      <button class="btn-ghost" (click)="step = 1">
+        <span class="material-symbols-outlined">arrow_back</span>
+        ATRÁS
+      </button>
+      <button class="btn-primary" [disabled]="!scheduleValid" (click)="goToConfirm()">
+        REVISAR VUELO
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 3 ===================== -->
+  <div class="step-panel" *ngIf="step === 3 && selectedTemplate">
+    <div class="step-panel__header">
+      <span class="material-symbols-outlined">checklist</span>
+      <h2>CONFIRMAR VUELO</h2>
+    </div>
+
+    <div class="confirm-route">
+      <div class="confirm-point">
+        <span class="confirm-iata">{{ getOrigin(selectedTemplate) }}</span>
+        <span class="confirm-city">{{ getOriginCity(selectedTemplate) }}</span>
+        <span class="confirm-time">{{ departureTime }}</span>
+        <span class="confirm-date">{{ departureDate | date: 'EEE dd MMM yyyy' | uppercase }}</span>
+      </div>
+      <div class="confirm-connector">
+        <span class="material-symbols-outlined">flight</span>
+        <span class="confirm-duration">{{
+          formatDuration(selectedTemplate.defaultDurationMinutes ?? 0)
+        }}</span>
+      </div>
+      <div class="confirm-point confirm-point--right">
+        <span class="confirm-iata confirm-iata--dest">{{ getDestination(selectedTemplate) }}</span>
+        <span class="confirm-city">{{ getDestCity(selectedTemplate) }}</span>
+        <span class="confirm-time">{{ arrivalDateTime | date: 'HH:mm' }}</span>
+        <span class="confirm-date">{{
+          arrivalDateTime | date: 'EEE dd MMM yyyy' | uppercase
+        }}</span>
+      </div>
+    </div>
+
+    <div class="confirm-details">
+      <div class="confirm-detail">
+        <span class="confirm-detail__label">NÚMERO DE VUELO</span>
+        <span class="confirm-detail__value">{{ selectedTemplate.flightNumber }}</span>
+      </div>
+      <div class="confirm-detail">
+        <span class="confirm-detail__label">AERONAVE</span>
+        <span class="confirm-detail__value"
+          >{{ selectedTemplate.aircraft?.code }} — {{ selectedTemplate.aircraft?.model }}</span
+        >
+      </div>
+      <div class="confirm-detail">
+        <span class="confirm-detail__label">CAPACIDAD</span>
+        <span class="confirm-detail__value">{{ capacity }} ASIENTOS</span>
+      </div>
+      <div class="confirm-detail">
+        <span class="confirm-detail__label">ESTADO</span>
+        <span class="status-chip" [ngClass]="statusClass(status)">{{ status }}</span>
+      </div>
+    </div>
+
+    <div class="error-banner" *ngIf="error">
+      <span class="material-symbols-outlined">error</span>
+      {{ error }}
+    </div>
+
+    <div class="step-footer">
+      <button class="btn-ghost" (click)="step = 2">
+        <span class="material-symbols-outlined">arrow_back</span>
+        ATRÁS
+      </button>
+      <button class="btn-confirm" [disabled]="saving" (click)="submit()">
+        <span class="material-symbols-outlined">{{
+          saving ? 'hourglass_empty' : 'flight_takeoff'
+        }}</span>
+        {{ saving ? 'CREANDO...' : 'CREAR VUELO' }}
+      </button>
+    </div>
+  </div>
+</div>
