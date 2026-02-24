@@ -12,6 +12,7 @@ import { RouteList } from './components/route-list/route-list';
 import { FlightTemplateList } from './components/flight-template-list/flight-template-list';
 import { UserList } from './components/user-list/user-list';
 import { FlightForm } from './components/flight-form/flight-form';
+import { AircraftSoapList } from './components/aircraft-soap-list/aircraft-soap-list';
 
 export const routes: Routes = [
   // Ruta pública
@@ -34,6 +35,7 @@ export const routes: Routes = [
       {path: 'route-list', component: RouteList},
       {path: 'flight-template-list', component: FlightTemplateList},
       {path: 'user-list', component: UserList},
+      {path: 'aircraft-soap-list', component: AircraftSoapList},
     ]
   },
 

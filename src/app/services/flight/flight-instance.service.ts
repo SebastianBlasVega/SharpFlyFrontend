@@ -3,13 +3,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FlightInstance } from '../../models/flight-instance';
 import { FlightStatus } from '../../models/flight-status';
+import { environment } from '../../../environments/environment.sharpfly';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FlightInstanceService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://api.sharpfly.jeremiasamador.com/api/v1/flight-instances';
+  private apiUrl = `${environment.apiUrl}/api/v1/flight-instances`;
 
   // POST /
   createFlightInstance(flightInstance: FlightInstance): Observable<FlightInstance> {

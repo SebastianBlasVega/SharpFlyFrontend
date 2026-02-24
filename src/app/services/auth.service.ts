@@ -3,12 +3,13 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment.sharpfly';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
-  private apiUrl = 'https://api.sharpfly.jeremiasamador.com';
+  private apiUrl = `${environment.apiUrl}`;
 
   private isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);

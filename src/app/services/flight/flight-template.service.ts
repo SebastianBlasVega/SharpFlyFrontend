@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FlightTemplate } from '../../models/flight-template';
+import { environment } from '../../../environments/environment.sharpfly';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FlightTemplateService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://api.sharpfly.jeremiasamador.com/api/v1/flight-templates';
+  private apiUrl = `${environment.apiUrl}/api/v1/flight-templates`;
 
   // POST /
   createFlightTemplate(flightTemplate: FlightTemplate): Observable<FlightTemplate> {

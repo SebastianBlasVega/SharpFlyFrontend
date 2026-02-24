@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Passenger } from '../../models/passenger';
+import { environment } from '../../../environments/environment.sharpfly';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PassengerService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://api.sharpfly.jeremiasamador.com/api/v1/passengers';
+  private apiUrl = `${environment.apiUrl}/api/v1/passengers`;
 
   // POST /
   createPassenger(passenger: Passenger): Observable<Passenger> {

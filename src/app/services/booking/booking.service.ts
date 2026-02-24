@@ -4,13 +4,14 @@ import { Observable } from 'rxjs';
 import { BookingStatus } from '../../models/booking-status';
 import { BookingRequestDto } from '../../models/DTOs/api-respose';
 import { BookingResponseDto } from '../../models/DTOs/api-respose';
+import { environment } from '../../../environments/environment.sharpfly';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookingService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://api.sharpfly.jeremiasamador.com/api/v1/bookings';
+  private apiUrl = `${environment.apiUrl}/api/v1/bookings`;
 
   // POST /
   createBooking(request: BookingRequestDto): Observable<BookingResponseDto> {

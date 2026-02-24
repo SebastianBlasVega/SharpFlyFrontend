@@ -1,0 +1,125 @@
+<div class="soap-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <span class="material-symbols-outlined page-header__icon">airplanemode_active</span>
+      <div>
+        <h1 class="page-header__title">AERONAVES — SOAP</h1>
+        <p class="page-header__sub">Vía Servicio Web / XML</p>
+      </div>
+    </div>
+    <!-- Badge que indica que viene de SOAP -->
+    <div class="soap-badge">
+      <span class="material-symbols-outlined">code</span>
+      SOAP / XML
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-item__value">{{ allAircraft.length }}</span>
+      <span class="stat-item__label">TOTAL</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--green">{{ activeCount }}</span>
+      <span class="stat-item__label">ACTIVOS</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-item__value stat-item__value--red">{{ inactiveCount }}</span>
+      <span class="stat-item__label">INACTIVOS</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-box">
+    <span class="material-symbols-outlined">search</span>
+    <input
+      type="text"
+      placeholder="BUSCAR POR CÓDIGO O MODELO..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="applyFilters()"
+    />
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>OBTENIENDO DATOS VÍA SOAP...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-state" *ngIf="error && !loading">
+    <span class="material-symbols-outlined">error</span>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadAircraft()">REINTENTAR</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper" *ngIf="!loading && !error">
+    <table class="aircraft-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>CÓDIGO</th>
+          <th>MODELO</th>
+          <th>ASIENTOS</th>
+          <th>CREADO</th>
+          <th>ESTADO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          class="aircraft-row"
+          *ngFor="let a of filteredAircraft; let i = index"
+          [style.animation-delay]="i * 35 + 'ms'"
+          [class.aircraft-row--inactive]="!a.isActive"
+        >
+          <td>
+            <span class="id-badge">#{{ a.aircraftId }}</span>
+          </td>
+
+          <td>
+            <span class="code-cell">{{ a.code }}</span>
+          </td>
+
+          <td>{{ a.model }}</td>
+
+          <td>
+            <div class="seats-cell">
+              <span class="seats-number">{{ a.seatCapacity }}</span>
+              <div class="seats-bar">
+                <div class="seats-bar__fill" [style.width.%]="(a.seatCapacity / 400) * 100"></div>
+              </div>
+            </div>
+          </td>
+
+          <td class="date-cell">
+            {{ a.createdAt | date: 'dd MMM yyyy' | uppercase }}
+          </td>
+
+          <td>
+            <span
+              class="status-chip"
+              [class.chip--green]="a.isActive"
+              [class.chip--red]="!a.isActive"
+            >
+              {{ a.isActive ? 'ACTIVO' : 'INACTIVO' }}
+            </span>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredAircraft.length === 0">
+          <td colspan="6">
+            <div class="empty-state">
+              <span class="material-symbols-outlined">airplanemode_inactive</span>
+              <p>NO SE ENCONTRARON AERONAVES</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
